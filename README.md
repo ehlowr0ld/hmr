@@ -52,4 +52,8 @@ Pair `uvicorn` + `hmr`, and you’ve got yourself a Vite-like development experi
 > [!TIP]
 > A little backstory: the code for hmr lives in [another repo](https://github.com/promplate/pyth-on-line/tree/0b14d04e36337a6ff4d5a7a84cd22ee6890901e7/src/python/common/reactivity) because, truth be told, I wasn’t planning on building an HMR framework. This started as an experiment in bringing reactive programming to Python. Along the way, I realized why not make a module’s globals [reactive](https://github.com/promplate/pyth-on-line/blob/0b14d04e36337a6ff4d5a7a84cd22ee6890901e7/src/python/common/reactivity/helpers.py#L84)? And that’s how hmr was born! While it began as a side project, I see tremendous potential in it.
 
-For now, this repo is a humble README and a place to kick off the conversation. If you think hmr has potential, or you just want to throw ideas around, I’d love to hear from you. We believe that the Python community can benefit from a more dynamic development experience, and we’re excited to see where this can take us!`
+For now, this repo is a humble README and a place to kick off the conversation. If you think hmr has potential, or you just want to throw ideas around, I’d love to hear from you. We believe that the Python community can benefit from a more dynamic development experience, and we’re excited to see where this can take us!
+
+## Further reading
+
+About fine-grained reactivity, I recommend reading [SolidJS’s excellent explanation](https://docs.solidjs.com/advanced-concepts/fine-grained-reactivity).
