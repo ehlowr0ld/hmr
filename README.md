@@ -1,16 +1,18 @@
 # HMR for Python
 
+![PyPI - Version](https://img.shields.io/pypi/v/hmr) ![PyPI - Downloads](https://img.shields.io/pypi/dw/hmr)
+
 HMR means Hot Module Reload / [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/). It is a feature that allows part of your app to be updated at runtime without a full rerun.
 
 In contrast to the traditional way of reloading Python applications (like [watchfiles CLI](https://watchfiles.helpmanual.io/cli/), [uvicorn --reload](https://www.uvicorn.org/settings/#reloading-with-watchfiles) or [Flask's](https://flask.palletsprojects.com/en/stable/server/) debug mode), HMR is just more efficient.
+
+https://github.com/user-attachments/assets/f9ac6302-44dc-4a6d-86ae-f299fae7be80
 
 Imagine you’re building a ML service with [FastAPI](https://fastapi.tiangolo.com/). Your model takes ~5 seconds to load. Every time you change anything (yes, even something trivial like a docstring of a endpoint handler), `uvicorn --reload` makes you sit through another full 5-second restart. It’s like hitting a traffic light at every block.
 
 With HMR, it’s more like clear roads ahead. Changes are applied instantly. Behind the scenes, HMR works by updating your code on-demand. Picture your codebase as a dependency graph: when you edit a file, HMR only reruns the parts of the graph affected by that change—from the deepest dependency all the way up to your entry file—without restarting the whole app.
 
 With HMR, you can see the changes immediately. Under the hood, code reruns on-demand. Imagine a dependency graph of your code. When you change a file, HMR will rerun the affected parts of the graph, from deep to shallow, until the entry file is reached.
-
-https://github.com/user-attachments/assets/f9ac6302-44dc-4a6d-86ae-f299fae7be80
 
 ## Usage
 
