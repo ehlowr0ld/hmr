@@ -10,7 +10,7 @@ With HMR, it’s more like clear roads ahead. Changes are applied instantly. Beh
 
 With HMR, you can see the changes immediately. Under the hood, code reruns on-demand. Imagine a dependency graph of your code. When you change a file, HMR will rerun the affected parts of the graph, from deep to shallow, until the entry file is reached.
 
-![FastAPI Demo](./assets/fastapi.mov)
+https://github.com/user-attachments/assets/f9ac6302-44dc-4a6d-86ae-f299fae7be80
 
 ## Usage
 

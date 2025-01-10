@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+/*lock*
+
+# IDE config files
+.vscode
+.fleet
+.idea
+
+# OS-generated files
+.DS_Store
+desktop.ini
