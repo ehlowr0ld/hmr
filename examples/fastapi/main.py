@@ -23,7 +23,8 @@ def start_server():
     from uvicorn import Config, Server
 
     if stop := globals().get("stop"):  # type: ignore
-        stop()
+        unregister(stop)
+        stop()  # type: ignore
 
     server = Server(Config(app, host="localhost"))
 
@@ -39,7 +40,6 @@ def start_server():
     def stop():
         server.should_exit = True
         finish.wait()
-        unregister(stop)
 
 
 start_server()
