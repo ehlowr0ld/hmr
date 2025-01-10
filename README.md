@@ -27,7 +27,7 @@ uvx hmr path/to/your/entry-file.py
 
 Note that hmr is not well-tested yet. Simple modules should work fine, but frameworks like ASGI servers or pytest may work better with especial integration.
 
-![Another Demo](./assets/demo.mov)
+https://github.com/user-attachments/assets/fb247649-193d-4eed-b778-05b02d47c3f6
 
 ## Motivation
 
