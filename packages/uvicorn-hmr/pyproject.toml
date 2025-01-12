@@ -1,0 +1,15 @@
+[project]
+name = "uvicorn-hmr"
+version = "0.0.1"
+dependencies = [
+    "hmr~=0.1.2",
+    "typer-slim~=0.15.1",
+    "uvicorn>=0.24.0",
+]
+
+[project.scripts]
+uvicorn-hmr = "uvicorn_hmr:app"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
