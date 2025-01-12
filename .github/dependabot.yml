@@ -1,0 +1,23 @@
+version: 2
+
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
+  - package-ecosystem: pip
+    directory: /examples/demo
+    schedule:
+      interval: daily
+  - package-ecosystem: pip
+    directory: /examples/fastapi
+    schedule:
+      interval: daily
+  - package-ecosystem: pip
+    directory: /examples/flask
+    schedule:
+      interval: daily
+  - package-ecosystem: pip
+    directory: /packages/uvicorn-hmr
+    schedule:
+      interval: daily
