@@ -1,0 +1,66 @@
+name: CI
+
+on: [push, fork, pull_request, workflow_dispatch]
+
+jobs:
+  typos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crate-ci/typos@master
+
+  check:
+    strategy:
+      matrix:
+        os: [ubuntu, macos]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: 3.13
+          enable-cache: true
+          cache-dependency-glob: |
+            **/pyproject.toml
+      - name: Install dependencies
+        run: |
+          uv pip install basedpyright \
+            -r pyproject.toml \
+            -r examples/demo/pyproject.toml \
+            -r examples/fastapi/pyproject.toml \
+            -r examples/flask/pyproject.toml \
+            -r packages/uvicorn-hmr/pyproject.toml
+      - name: Linting
+        run: |
+          ruff format --check --diff
+          ruff check --diff
+      - name: Check typing
+        run: basedpyright
+
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+    strategy:
+      matrix:
+        dir:
+          - uvicorn-hmr
+      fail-fast: false
+    needs: [typos, check]
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: packages/${{ matrix.dir }}
+      - name: Set up Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: 3.13
+      - name: Build packages
+        run: |
+          uv build packages/${{ matrix.dir }}
+      - name: Publish to PyPI
+        continue-on-error: true
+        run: uv publish
