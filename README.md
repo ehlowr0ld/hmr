@@ -14,6 +14,12 @@ With HMR, it’s more like clear roads ahead. Changes are applied instantly. Beh
 
 With HMR, you can see the changes immediately. Under the hood, code reruns on-demand. Imagine a dependency graph of your code. When you change a file, HMR will rerun the affected parts of the graph, from deep to shallow, until the entry file is reached.
 
+> [!CAUTION]
+>
+> ## What this package is not?
+>
+> `hmr` are sometimes refer to a feature that updates the page in the browser on the client side when the server code changes. This is not that. This package is a server-side HMR, that reloads the server code when it changes.
+
 ## Usage
 
 ```sh
