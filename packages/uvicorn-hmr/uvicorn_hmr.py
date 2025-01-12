@@ -65,9 +65,6 @@ def main(slug: str = Argument("main:app"), reload_include: str = str(Path.cwd())
         @memoized_method
         def run_entry_file(self):
             with self.error_filter:
-                self.module._ReactiveModule__load.invalidate()
-                self.module._ReactiveModule__load()
-
                 stop_server()
                 start_server(getattr(self.module, attr))
 

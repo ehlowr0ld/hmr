@@ -1,6 +1,6 @@
 [project]
 name = "uvicorn-hmr"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
     "hmr~=0.1.2",
     "typer-slim~=0.15.1",
