@@ -1,6 +1,7 @@
 [project]
 name = "uvicorn-hmr"
-version = "0.0.2"
+version = "0.0.2.1"
+readme = "README.md"
 dependencies = [
     "hmr~=0.1.2",
     "typer-slim~=0.15.1",
@@ -9,6 +10,9 @@ dependencies = [
 
 [project.scripts]
 uvicorn-hmr = "uvicorn_hmr:app"
+
+[project.urls]
+Homepage = "https://github.com/promplate/hmr"
 
 [build-system]
 requires = ["pdm-backend"]

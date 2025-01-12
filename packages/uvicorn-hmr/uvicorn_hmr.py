@@ -1,13 +1,17 @@
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from typer import Argument, Typer
+from typer import Argument, Typer, secho
 
 app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False)
 
 
 @app.command(no_args_is_help=True)
 def main(slug: str = Argument("main:app"), reload_include: str = str(Path.cwd()), reload_exclude: str = ".venv"):
+    if ":" not in slug:
+        secho("Invalid slug: ", fg="red", nl=False)
+        secho(slug, fg="yellow")
+        exit(1)
     module, attr = slug.split(":")
 
     fragment = Path(module.replace(".", "/"))
@@ -15,7 +19,10 @@ def main(slug: str = Argument("main:app"), reload_include: str = str(Path.cwd())
     if (path := fragment.with_suffix(".py")).is_file() or (path := fragment / "__init__.py").is_file():
         file = path.resolve()
     else:
-        raise FileNotFoundError(f"Module `{module}` not found")
+        secho("Module", fg="red", nl=False)
+        secho(f" {module} ", fg="yellow", nl=False)
+        secho("not found.", fg="red")
+        exit(1)
 
     import sys
     from atexit import register
