@@ -7,7 +7,15 @@ app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False)
 
 
 @app.command(no_args_is_help=True)
-def main(slug: str = Argument("main:app"), reload_include: str = str(Path.cwd()), reload_exclude: str = ".venv"):
+def main(
+    slug: str = Argument("main:app"),
+    reload_include: str = str(Path.cwd()),
+    reload_exclude: str = ".venv",
+    host: str = "localhost",
+    port: int = 8000,
+    env_file: Path | None = None,
+    log_level: str | None = "info",
+):
     if ":" not in slug:
         secho("Invalid slug: ", fg="red", nl=False)
         secho(slug, fg="yellow")
@@ -50,7 +58,7 @@ def main(slug: str = Argument("main:app"), reload_include: str = str(Path.cwd())
     def start_server(app: "ASGIApplication"):
         nonlocal stop_server
 
-        server = Server(Config(app, host="localhost"))
+        server = Server(Config(app, host, port, env_file=env_file, log_level=log_level))
         finish = Event()
 
         def run_server():
