@@ -8,17 +8,15 @@ In contrast to the traditional way of reloading Python applications (like [watch
 
 https://github.com/user-attachments/assets/f9ac6302-44dc-4a6d-86ae-f299fae7be80
 
-Imagine you’re building a ML service with [FastAPI](https://fastapi.tiangolo.com/). Your model takes ~5 seconds to load. Every time you change anything (yes, even something trivial like a docstring of a endpoint handler), `uvicorn --reload` makes you sit through another full 5-second restart. It’s like hitting a traffic light at every block.
+Imagine you're developing an ML service using [FastAPI](https://fastapi.tiangolo.com/) with a model that requires 5 seconds to initialize. When using `uvicorn --reload`, any change—even updating a simple docstring—triggers a code restart, forcing you to wait those 5 seconds every time. It's as frustrating as encountering a red light at every intersection.
 
-With HMR, it’s more like clear roads ahead. Changes are applied instantly. Behind the scenes, HMR works by updating your code on-demand. Picture your codebase as a dependency graph: when you edit a file, HMR only reruns the parts of the graph affected by that change—from the deepest dependency all the way up to your entry file—without restarting the whole app.
-
-With HMR, you can see the changes immediately. Under the hood, code reruns on-demand. Imagine a dependency graph of your code. When you change a file, HMR will rerun the affected parts of the graph, from deep to shallow, until the entry file is reached.
+HMR offers a smoother experience. Changes take effect instantly because HMR intelligently reruns only what's necessary. Your codebase functions like a dependency graph—when you modify a file, HMR only reruns the affected modules from that modified module up to your entry point file, without restarting the whole app.
 
 > [!CAUTION]
 >
 > ## What this package is not?
 >
-> `hmr` are sometimes refer to a feature that updates the page in the browser on the client side when the server code changes. This is not that. This package is a server-side HMR, that reloads the server code when it changes.
+> `hmr` should not be confused with client-side hot reloading that updates browser content when server code changes. This package implements server-side HMR, which only reloads python code upon changes.
 
 ## Usage
 
@@ -33,9 +31,10 @@ If you have `uv` installed, you can try `hmr` directly with:
 uvx hmr path/to/your/entry-file.py
 ```
 
-Note that hmr is not well-tested yet. Simple modules should work fine, but frameworks like ASGI servers or pytest may work better with especial integration.
+Please note that hmr is still in early development. While it works well with simple modules, frameworks like ASGI servers or pytest may require specific integration methods.
 
 https://github.com/user-attachments/assets/fb247649-193d-4eed-b778-05b02d47c3f6
+
 
 ## Motivation
 
