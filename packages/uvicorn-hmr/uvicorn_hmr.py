@@ -42,7 +42,7 @@ def main(
     from uvicorn import Config, Server
 
     if TYPE_CHECKING:
-        from uvicorn._types import ASGIApplication
+        from uvicorn._types import ASGIApplication  # type: ignore
 
     cwd = str(Path.cwd())
     if cwd not in sys.path:
