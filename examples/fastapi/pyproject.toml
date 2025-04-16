@@ -8,4 +8,4 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-uvicorn-hmr = { path = "../../packages/uvicorn-hmr" }
+uvicorn-hmr = { path = "../../packages/uvicorn-hmr", editable = true }
