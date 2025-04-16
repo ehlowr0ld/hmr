@@ -31,7 +31,8 @@ jobs:
             -r examples/demo/pyproject.toml \
             -r examples/fastapi/pyproject.toml \
             -r examples/flask/pyproject.toml \
-            -r packages/uvicorn-hmr/pyproject.toml
+            -r packages/uvicorn-hmr/pyproject.toml \
+            -r packages/fastapi-reloader/pyproject.toml
       - name: Linting
         run: |
           ruff format --check --diff
@@ -46,6 +47,7 @@ jobs:
       matrix:
         dir:
           - uvicorn-hmr
+          - fastapi-reloader
       fail-fast: false
     needs: [typos, check]
     permissions:

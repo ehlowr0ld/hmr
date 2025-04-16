@@ -2,9 +2,9 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, override
 
-from typer import Argument, Typer, secho
+from typer import Argument, Option, Typer, secho
 
-app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False)
+app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False, pretty_exceptions_show_locals=False)
 
 
 @app.command(no_args_is_help=True)
@@ -16,6 +16,7 @@ def main(
     port: int = 8000,
     env_file: Path | None = None,
     log_level: str | None = "info",
+    reload: bool = Option(False, "--reload", help="Enable automatic browser page reload using `fastapi-reloader` (requires installation)"),  # noqa: FBT001, FBT003
 ):
     if ":" not in slug:
         secho("Invalid slug: ", fg="red", nl=False)
@@ -68,6 +69,8 @@ def main(
         Thread(target=run_server, daemon=True).start()
 
         def stop_server():
+            if reload:
+                _try_reload()
             server.should_exit = True
             finish.wait()
 
@@ -84,11 +87,45 @@ def main(
         @override
         def run_entry_file(self):
             stop_server()
-
             with self.error_filter:
                 self.entry_module.load()
                 app = getattr(self.entry_module, attr)
+                if reload:
+                    app: ASGIApplication = _try_patch(app)  # type: ignore
                 start_server(app)
 
     Reloader().keep_watching_until_interrupt()
     stop_server()
+
+
+NOTE = """\033[31m
+When you enable the `--reload` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page reloading.
+This behavior differs from Uvicorn's built-in `--reload` functionality.
+
+Server reloading is a core feature of `uvicorn-hmr` and is always active, regardless of whether the `--reload` flag is set.
+The `--reload` flag specifically controls auto-reloading of HTML pages, a feature not available in Uvicorn.
+
+If you don't need HTML page auto-reloading, simply omit the `--reload` flag.
+If you do want this feature, ensure that `fastapi-reloader` is installed by running: `pip install fastapi-reloader` or `pip install uvicorn-hmr[all]`.
+\033[0m"""  # in red
+
+
+def _try_patch(app):
+    try:
+        from fastapi_reloader import patch_for_auto_reloading
+
+        return patch_for_auto_reloading(app)
+
+    except ImportError:
+        print(NOTE)
+        raise
+
+
+def _try_reload():
+    try:
+        from fastapi_reloader import send_reload_signal
+
+        send_reload_signal()
+    except ImportError:
+        print(NOTE)
+        raise

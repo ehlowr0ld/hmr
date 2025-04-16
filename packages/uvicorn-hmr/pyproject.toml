@@ -1,6 +1,6 @@
 [project]
 name = "uvicorn-hmr"
-version = "0.0.5"
+version = "0.0.6"
 readme = "README.md"
 dependencies = [
     "hmr~=0.4.0",
@@ -17,3 +17,11 @@ Homepage = "https://github.com/promplate/hmr"
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
+
+[dependency-groups]
+all = [
+    "fastapi-reloader~=1.0",
+]
+
+[tool.uv.sources]
+fastapi-reloader = { workspace = true }

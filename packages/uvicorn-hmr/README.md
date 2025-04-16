@@ -1,5 +1,8 @@
 # uvicorn-hmr
 
+[![PyPI - Version](https://img.shields.io/pypi/v/uvicorn-hmr)](https://pypi.org/project/uvicorn-hmr/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dw/uvicorn-hmr)](https://pepy.tech/projects/uvicorn-hmr)
+
 This package provides hot module reloading (HMR) for [`uvicorn`](https://github.com/encode/uvicorn).
 
 It uses [`watchfiles`](https://github.com/samuelcolvin/watchfiles) to detect FS modifications,
@@ -12,6 +15,25 @@ Since the reload is on-demand and the server is not restarted on every request, 
 ```sh
 pip install uvicorn-hmr
 ```
+
+Or with extra dependencies:
+
+```sh
+pip install uvicorn-hmr[all]
+```
+
+This will install `fastapi-reloader` too, which enables you to use `--reload` flag to reload the browser pages when the server restarts.
+
+> [!NOTE]
+> When you enable the `--reload` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page reloading.
+> This behavior differs from Uvicorn's built-in `--reload` functionality.
+>
+> Server reloading is a core feature of `uvicorn-hmr` and is always active, regardless of whether the `--reload` flag is set.
+> The `--reload` flag specifically controls auto-reloading of HTML pages, a feature not available in Uvicorn.
+>
+> If you don't need HTML page auto-reloading, simply omit the `--reload` flag.
+> If you do want this feature, ensure that `fastapi-reloader` is installed by running: `pip install fastapi-reloader` or `pip install uvicorn-hmr[all]`.
+
 
 ## Usage
 

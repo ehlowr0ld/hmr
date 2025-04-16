@@ -1,6 +1,7 @@
 # HMR for Python
 
-![PyPI - Version](https://img.shields.io/pypi/v/hmr) ![PyPI - Downloads](https://img.shields.io/pypi/dw/hmr)
+[![PyPI - Version](https://img.shields.io/pypi/v/hmr)](https://pypi.org/project/hmr/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dw/hmr)](https://pepy.tech/projects/hmr)
 
 HMR means Hot Module Reload / [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/). It is a feature that allows part of your app to be updated at runtime without a full rerun.
 

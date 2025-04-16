@@ -1,0 +1,15 @@
+[project]
+name = "fastapi-reloader"
+version = "1.0"
+readme = "README.md"
+dependencies = [
+    "fastapi~=0.115",
+    "hmr~=0.4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/promplate/hmr"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
