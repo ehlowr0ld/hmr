@@ -1,5 +1,6 @@
+from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from typer import Argument, Typer, secho
 
@@ -37,8 +38,7 @@ def main(
     from importlib import import_module
     from threading import Event, Thread
 
-    from reactivity import memoized_method
-    from reactivity.hmr.core import SyncReloader
+    from reactivity.hmr.core import ReactiveModule, SyncReloader
     from uvicorn import Config, Server
 
     if TYPE_CHECKING:
@@ -75,12 +75,20 @@ def main(
         def __init__(self):
             super().__init__(str(file), {reload_include}, {reload_exclude})
             self.error_filter.exclude_filenames.add(__file__)  # exclude error stacks within this file
-            self.module = import_module(module)
 
-        @memoized_method
+        @cached_property
+        @override
+        def entry_module(self) -> ReactiveModule:
+            return import_module(module)  # type: ignore
+
+        @override
         def run_entry_file(self):
+            stop_server()
+
             with self.error_filter:
-                stop_server()
-                start_server(getattr(self.module, attr))
+                self.entry_module.load()
+                app = getattr(self.entry_module, attr)
+                start_server(app)
 
     Reloader().keep_watching_until_interrupt()
+    stop_server()
