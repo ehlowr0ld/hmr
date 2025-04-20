@@ -17,6 +17,8 @@
             });
             if (res.ok) {
               break;
+            } else if (res.status !== 502) {
+              return;
             }
           } catch (error) {}
         }
