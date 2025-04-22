@@ -1,6 +1,6 @@
 [project]
 name = "uvicorn-hmr"
-version = "0.0.6.1"
+version = "0.0.6.2"
 readme = "README.md"
 dependencies = [
     "hmr~=0.4.0",

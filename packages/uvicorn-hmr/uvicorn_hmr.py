@@ -35,6 +35,13 @@ def main(
         exit(1)
 
     import sys
+
+    if module in sys.modules:
+        return secho(
+            f"It seems you've already imported `{module}` as a normal module. You should call `reactivity.hmr.core.patch_meta_path()` before it.",
+            fg="red",
+        )
+
     from atexit import register
     from importlib import import_module
     from threading import Event, Thread
