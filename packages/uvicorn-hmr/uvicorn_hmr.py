@@ -98,7 +98,7 @@ def main(
     stop_server()
 
 
-NOTE = """\033[31m
+NOTE = """
 When you enable the `--reload` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page reloading.
 This behavior differs from Uvicorn's built-in `--reload` functionality.
 
@@ -107,7 +107,7 @@ The `--reload` flag specifically controls auto-reloading of HTML pages, a featur
 
 If you don't need HTML page auto-reloading, simply omit the `--reload` flag.
 If you do want this feature, ensure that `fastapi-reloader` is installed by running: `pip install fastapi-reloader` or `pip install uvicorn-hmr[all]`.
-\033[0m"""  # in red
+"""
 
 
 def _try_patch(app):
@@ -117,7 +117,7 @@ def _try_patch(app):
         return patch_for_auto_reloading(app)
 
     except ImportError:
-        print(NOTE)
+        secho(NOTE, fg="red")
         raise
 
 
@@ -127,5 +127,5 @@ def _try_reload():
 
         send_reload_signal()
     except ImportError:
-        print(NOTE)
+        secho(NOTE, fg="red")
         raise
