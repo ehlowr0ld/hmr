@@ -1,6 +1,6 @@
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING, Annotated, override
 
 from typer import Argument, Option, Typer, secho
 
@@ -9,14 +9,14 @@ app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False, pre
 
 @app.command(no_args_is_help=True)
 def main(
-    slug: str = Argument("main:app"),
+    slug: Annotated[str, Argument()] = "main:app",
     reload_include: str = str(Path.cwd()),
     reload_exclude: str = ".venv",
     host: str = "localhost",
     port: int = 8000,
     env_file: Path | None = None,
     log_level: str | None = "info",
-    reload: bool = Option(False, "--reload", help="Enable automatic browser page reload using `fastapi-reloader` (requires installation)"),  # noqa: FBT001, FBT003
+    reload: Annotated[bool, Option("--reload", help="Enable automatic browser page reload using `fastapi-reloader` (requires installation)")] = False,  # noqa: FBT002
 ):
     if ":" not in slug:
         secho("Invalid slug: ", fg="red", nl=False)
