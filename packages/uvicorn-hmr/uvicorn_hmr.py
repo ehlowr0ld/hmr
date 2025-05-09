@@ -47,6 +47,7 @@ def main(
     from threading import Event, Thread
 
     from reactivity.hmr.core import ReactiveModule, SyncReloader
+    from reactivity.hmr.utils import load
     from uvicorn import Config, Server
 
     if TYPE_CHECKING:
@@ -95,7 +96,7 @@ def main(
         def run_entry_file(self):
             stop_server()
             with self.error_filter:
-                self.entry_module.load()
+                load(self.entry_module)
                 app = getattr(self.entry_module, attr)
                 if reload:
                     app: ASGIApplication = _try_patch(app)  # type: ignore
