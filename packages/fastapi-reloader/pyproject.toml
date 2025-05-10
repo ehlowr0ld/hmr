@@ -1,10 +1,10 @@
 [project]
 name = "fastapi-reloader"
-version = "1.0.1"
+version = "1.0.1.1"
 readme = "README.md"
 dependencies = [
     "fastapi~=0.115",
-    "hmr~=0.5.0",
+    "hmr>=0.4,<0.6",
 ]
 
 [project.urls]
