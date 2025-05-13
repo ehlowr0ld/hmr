@@ -45,9 +45,9 @@ So, why not bring this magic to Python?
 
 ## How it works
 
-1. [`Signal`](https://docs.solidjs.com/concepts/intro-to-reactivity#signals) is an alternative of the observer pattern. I implemented [a simple signal system](https://github.com/promplate/pyth-on-line/blob/0b14d04e36337a6ff4d5a7a84cd22ee6890901e7/src/python/common/reactivity/primitives.py) to notify changes.
-2. I implemented [a custom Module class](https://github.com/promplate/pyth-on-line/blob/0b14d04e36337a6ff4d5a7a84cd22ee6890901e7/src/python/common/reactivity/hmr.py#L44) which tracks every `__getattr__` and `__setattr__` calls. When a key is changed, it will notify the modules who used it. This notification is recursive but fine-grained.
-3. `watchfiles` is used to [detect fs changes](https://github.com/promplate/pyth-on-line/blob/0b14d04e36337a6ff4d5a7a84cd22ee6890901e7/src/python/common/reactivity/hmr.py#L177). If a change's path is a python module that has been imported, it will notify the corresponding ones.
+1. [`Signal`](https://docs.solidjs.com/concepts/intro-to-reactivity#signals) is an alternative of the observer pattern. I implemented [a simple signal system](https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/primitives.py) to notify changes.
+2. I implemented [a custom Module class](https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/hmr/core.py#L69) which tracks every `__getattr__` and `__setattr__` calls. When a key is changed, it will notify the modules who used it. This notification is recursive but fine-grained.
+3. `watchfiles` is used to [detect fs changes](https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/hmr/core.py#L245). If a change's path is a python module that has been imported, it will notify the corresponding ones.
 
 ## Contributing
 
@@ -56,7 +56,7 @@ This might just be the first fine-grained HMR framework in the Python ecosystem�
 Pair `uvicorn` + `hmr`, and you’ve got yourself a Vite-like development experience. Combine `pytest` + `hmr`, and you’re basically running Vitest for Python. The possibilities with other libraries? Endless. Let’s brainstorm together—who knows what fun (or mildly chaotic) things we might create!
 
 > [!TIP]
-> A little backstory: the code for hmr lives in [another repo](https://github.com/promplate/pyth-on-line/tree/reactivity/src/python/common/reactivity) because, truth be told, I wasn’t planning on building an HMR framework. This started as an experiment in bringing reactive programming to Python. Along the way, I realized why not make a module’s globals [reactive](https://github.com/promplate/pyth-on-line/blob/hmr/v0.4.1.1/src/python/common/reactivity/helpers.py#L80)? And that’s how hmr was born! While it began as a side project, I see tremendous potential in it.
+> A little backstory: the code for hmr lives in [another repo](https://github.com/promplate/pyth-on-line/tree/reactivity/packages/hmr) because, truth be told, I wasn’t planning on building an HMR framework. This started as an experiment in bringing reactive programming to Python. Along the way, I realized why not make a module’s globals [reactive](https://github.com/promplate/pyth-on-line/blob/hmr/v0.5.2.1/packages/hmr/reactivity/helpers.py#L80)? And that’s how hmr was born! While it began as a side project, I see tremendous potential in it.
 
 For now, this repo is a humble README and a place to kick off the conversation. If you think hmr has potential, or you just want to throw ideas around, I’d love to hear from you. We believe that the Python community can benefit from a more dynamic development experience, and we’re excited to see where this can take us!
 
