@@ -7,7 +7,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from .core import get_js, hmr_router
+from .core import get_js, reload_router
 
 
 def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
@@ -17,7 +17,7 @@ def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
 
 def patch_for_auto_reloading(app: ASGIApp):
     new_app = FastAPI(openapi_url=None)
-    new_app.include_router(hmr_router)
+    new_app.include_router(reload_router)
     new_app.mount("/", app)
 
     async def hmr_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]):

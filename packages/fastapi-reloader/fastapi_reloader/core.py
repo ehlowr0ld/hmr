@@ -18,7 +18,7 @@ def send_reload_signal():
             queue.put_nowait(1)
 
 
-hmr_router = APIRouter(prefix="/---fastapi-reloader---", tags=["hmr"])
+reload_router = APIRouter(prefix="/---fastapi-reloader---", tags=["hmr"])
 
 
 runtime_js = Path(__file__, "../runtime.js").read_text()
@@ -28,12 +28,12 @@ def get_js():
     return runtime_js.replace("/0", f"/{get_id()}")
 
 
-@hmr_router.head("")
+@reload_router.head("")
 async def heartbeat():
     return Response(status_code=200)
 
 
-@hmr_router.get("/{key:int}")
+@reload_router.get("/{key:int}")
 async def simple_refresh_trigger(key: int):
     async def event_generator():
         queue = Queue[Literal[0, 1]]()
