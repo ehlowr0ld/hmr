@@ -39,6 +39,7 @@ jobs:
         run: basedpyright
 
   publish:
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     environment: release
     strategy:
