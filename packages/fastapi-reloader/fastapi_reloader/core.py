@@ -21,7 +21,7 @@ def send_reload_signal():
 reload_router = APIRouter(prefix="/---fastapi-reloader---", tags=["hmr"])
 
 
-runtime_js = Path(__file__, "../runtime.js").read_text()
+runtime_js = Path(__file__, "../runtime.js").resolve().read_text()
 
 
 def get_js():
