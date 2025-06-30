@@ -137,3 +137,7 @@ def _try_reload():
     except ImportError:
         secho(NOTE, fg="red")
         raise
+
+
+if __name__ == "__main__":
+    app()
