@@ -1,8 +1,9 @@
 [project]
 name = "uvicorn-hmr"
-version = "0.0.7.3"
+version = "0.0.8"
 readme = "README.md"
 dependencies = [
+    "dowhen~=0.1",
     "hmr>=0.5.0,<0.7",
     "typer-slim>=0.15.4,<1",
     "uvicorn>=0.24.0",

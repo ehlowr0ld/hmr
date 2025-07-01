@@ -17,6 +17,7 @@ def main(
     env_file: Path | None = None,
     log_level: str | None = "info",
     reload: Annotated[bool, Option("--reload", help="Enable automatic browser page reload using `fastapi-reloader` (requires installation)")] = False,  # noqa: FBT002
+    clear: Annotated[bool, Option("--clear", help="Clear the terminal before restarting the server")] = False,  # noqa: FBT002
 ):
     if ":" not in slug:
         secho("Invalid slug: ", fg="red", nl=False)
@@ -44,11 +45,13 @@ def main(
 
     from atexit import register
     from importlib import import_module
+    from logging import getLogger
     from threading import Event, Thread
 
     from reactivity.hmr.core import ReactiveModule, SyncReloader
     from reactivity.hmr.utils import load
     from uvicorn import Config, Server
+    from watchfiles import Change
 
     if TYPE_CHECKING:
         from uvicorn._types import ASGIApplication  # type: ignore
@@ -102,8 +105,44 @@ def main(
                     app: ASGIApplication = _try_patch(app)  # type: ignore
                 start_server(app)
 
+        @override
+        def on_events(self, events):
+            if events:
+                if clear:
+                    print("\033c", end="")
+                paths = [_display_path(path) for type, path in events if type != Change.deleted]
+                logger.warning("Watchfiles detected changes in %s. Reloading...", ", ".join(paths))
+            return super().on_events(events)
+
+        @override
+        def start_watching(self):
+            from dowhen import when
+            from reactivity.hmr.core import ReactiveModule
+
+            def log_server_restart():
+                logger.warning("Application '%s' has changed. Restarting server...", slug)
+
+            def log_module_reload(self: ReactiveModule):
+                ns = self.__dict__
+                logger.info("Reloading module '%s' from %s", ns["__name__"], _display_path(ns["__file__"]))
+
+            with (
+                when(ReactiveModule._ReactiveModule__load.method, "+1").do(log_module_reload),  # type: ignore  # noqa: SLF001
+                when(self.run_entry_file, "<start>").do(log_server_restart),
+            ):
+                return super().start_watching()
+
+    logger = getLogger("uvicorn.error")
     Reloader().keep_watching_until_interrupt()
     stop_server()
+
+
+def _display_path(path: str):
+    p = Path(path).resolve()
+    try:
+        return f"'{p.relative_to(Path.cwd())}'"
+    except ValueError:
+        return f"'{p}'"
 
 
 NOTE = """
