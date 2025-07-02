@@ -24,13 +24,7 @@ jobs:
           activate-environment: true
       - name: Install dependencies
         run: |
-          uv pip install basedpyright \
-            -r pyproject.toml \
-            -r examples/demo/pyproject.toml \
-            -r examples/fastapi/pyproject.toml \
-            -r examples/flask/pyproject.toml \
-            -r packages/uvicorn-hmr/pyproject.toml \
-            -r packages/fastapi-reloader/pyproject.toml
+            uv pip install basedpyright $(find . -name pyproject.toml -exec printf -- '-r %s ' {} \;)
       - name: Linting
         run: |
           ruff format --check --diff
@@ -47,6 +41,7 @@ jobs:
         dir:
           - uvicorn-hmr
           - fastapi-reloader
+          - hmr-daemon
       fail-fast: false
     needs: [typos, check]
     permissions:

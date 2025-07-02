@@ -1,0 +1,16 @@
+[project]
+name = "hmr-daemon"
+version = "0.1"
+dependencies = [
+    "hmr>=0.5.0,<0.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/promplate/hmr"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.build]
+includes = ["."]

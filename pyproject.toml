@@ -5,6 +5,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi-reloader",
     "hmr~=0.6.0",
+    "hmr-daemon",
     "ruff~=0.12.0",
     "uvicorn-hmr",
 ]
@@ -15,6 +16,7 @@ members = ["packages/*"]
 [tool.uv.sources]
 uvicorn-hmr = { workspace = true }
 fastapi-reloader = { workspace = true }
+hmr-daemon = { workspace = true }
 
 [tool.pyright]
 typeCheckingMode = "standard"
