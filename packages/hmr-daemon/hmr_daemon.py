@@ -1,3 +1,4 @@
+from os import getenv
 from pathlib import Path
 from sys import argv
 from threading import Event, Thread
@@ -36,7 +37,7 @@ def main():
             global disabled
 
             disabled = True
-            super().__init__("")
+            super().__init__("", excludes=(venv,) if (venv := getenv("VIRTUAL_ENV")) else ())
             disabled = False
 
             self.error_filter.exclude_filenames.add(__file__)
