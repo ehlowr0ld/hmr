@@ -66,5 +66,6 @@ disabled = False
 
 if patch_first:
     patch()
+    Thread(target=main, daemon=True, name="hmr-daemon").start()
 else:
     Thread(target=lambda: [patch(), main()], daemon=True, name="hmr-daemon").start()
