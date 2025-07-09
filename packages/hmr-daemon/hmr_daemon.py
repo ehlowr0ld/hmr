@@ -1,7 +1,7 @@
 from os import getenv
 from pathlib import Path
 from sys import argv
-from threading import Event, Thread
+from threading import Event, Thread, local
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ def patch():
 
     @wraps(original_init := BaseReloader.__init__)
     def wrapper(*args, **kwargs):
-        if not disabled:
+        if not state.disabled:
             shutdown_event.set()
             BaseReloader.__init__ = original_init
         original_init(*args, **kwargs)
@@ -34,11 +34,9 @@ def main():
 
     class Reloader(SyncReloader):
         def __init__(self):
-            global disabled
-
-            disabled = True
+            state.disabled = True
             super().__init__("", excludes=(venv,) if (venv := getenv("VIRTUAL_ENV")) else ())
-            disabled = False
+            state.disabled = False
 
             self.error_filter.exclude_filenames.add(__file__)
 
@@ -62,7 +60,7 @@ shutdown_event = Event()
 
 patch_first = "hmr" in Path(argv[0]).name
 
-disabled = False
+(state := local()).disabled = False
 
 if patch_first:
     patch()
