@@ -32,12 +32,11 @@ def patch():
 def main():
     from reactivity.hmr.core import SyncReloader
 
+    state.disabled = True
+
     class Reloader(SyncReloader):
         def __init__(self):
-            state.disabled = True
             super().__init__("", excludes=(venv,) if (venv := getenv("VIRTUAL_ENV")) else ())
-            state.disabled = False
-
             self.error_filter.exclude_filenames.add(__file__)
 
         def start_watching(self):
