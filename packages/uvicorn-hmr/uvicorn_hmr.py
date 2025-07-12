@@ -54,7 +54,7 @@ def main(
     from watchfiles import Change
 
     if TYPE_CHECKING:
-        from uvicorn._types import ASGIApplication  # type: ignore
+        from uvicorn._types import ASGIApplication
 
     cwd = str(Path.cwd())
     if cwd not in sys.path:
