@@ -127,7 +127,7 @@ def main(
                 logger.info("Reloading module '%s' from %s", ns["__name__"], _display_path(ns["__file__"]))
 
             with (
-                when(ReactiveModule._ReactiveModule__load.method, "+1").do(log_module_reload),  # type: ignore  # noqa: SLF001
+                when(ReactiveModule._ReactiveModule__load.method, "<start>").do(log_module_reload),  # type: ignore  # noqa: SLF001
                 when(self.run_entry_file, "<start>").do(log_server_restart),
             ):
                 return super().start_watching()
