@@ -54,6 +54,9 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           python-version: 3.13
+      - name: Remove admonitions from READMEs
+        run: |
+          find . -type f -name "README.md" -exec sed -i -E '/^> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]$/d' {} +
       - name: Build packages
         run: |
           uv build packages/${{ matrix.dir }}
