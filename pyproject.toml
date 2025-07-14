@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["packages/*"]
+members = ["examples/*", "packages/*"]
 
 [tool.uv.sources]
 uvicorn-hmr = { workspace = true }
@@ -20,6 +20,7 @@ hmr-daemon = { workspace = true }
 
 [tool.pyright]
 typeCheckingMode = "standard"
+reportUnnecessaryTypeIgnoreComment = "error"
 
 [tool.ruff]
 line-length = 150

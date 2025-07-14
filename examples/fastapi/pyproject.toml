@@ -7,5 +7,8 @@ dependencies = [
     "uvicorn-hmr[all]",
 ]
 
+[tool.uv]
+package = false
+
 [tool.uv.sources]
 uvicorn-hmr = { workspace = true }

@@ -24,13 +24,14 @@ jobs:
           activate-environment: true
       - name: Install dependencies
         run: |
-            uv pip install basedpyright $(find . -name pyproject.toml -exec printf -- '-r %s ' {} \;)
+            uv sync --all-packages
       - name: Linting
         run: |
           ruff format --check --diff
           ruff check --diff
+      - uses: oven-sh/setup-bun@v2
       - name: Check typing
-        run: basedpyright
+        run: bunx basedpyright
 
   publish:
     if: github.ref_type == 'tag'
