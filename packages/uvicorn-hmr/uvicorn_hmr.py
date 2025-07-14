@@ -124,10 +124,17 @@ def main(
         @override
         def on_events(self, events):
             if events:
+                paths: list[Path] = []
+                for type, file in events:
+                    path = Path(file).resolve()
+                    if type != Change.deleted and path in ReactiveModule.instances:
+                        paths.append(path)
+                if not paths:
+                    return
+
                 if clear:
                     print("\033c", end="")
-                paths = [_display_path(path) for type, path in events if type != Change.deleted]
-                logger.warning("Watchfiles detected changes in %s. Reloading...", ", ".join(paths))
+                logger.warning("Watchfiles detected changes in %s. Reloading...", ", ".join(map(_display_path, paths)))
             return super().on_events(events)
 
         @override
@@ -152,7 +159,7 @@ def main(
     stop_server()
 
 
-def _display_path(path: str):
+def _display_path(path: str | Path):
     p = Path(path).resolve()
     try:
         return f"'{p.relative_to(Path.cwd())}'"
