@@ -1,3 +1,4 @@
+import sys
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, override
@@ -25,17 +26,25 @@ def main(
         exit(1)
     module, attr = slug.split(":")
 
-    fragment = Path(module.replace(".", "/"))
+    fragment = module.replace(".", "/")
 
-    if (path := fragment.with_suffix(".py")).is_file() or (path := fragment / "__init__.py").is_file():
-        file = path.resolve()
+    file: Path | None
+    is_package = False
+    for path in ("", *sys.path):
+        if (file := Path(path, f"{fragment}.py")).is_file():
+            is_package = False
+            break
+        if (file := Path(path, fragment, "__init__.py")).is_file():
+            is_package = True
+            break
     else:
+        file = None
+
+    if file is None:
         secho("Module", fg="red", nl=False)
         secho(f" {module} ", fg="yellow", nl=False)
         secho("not found.", fg="red")
         exit(1)
-
-    import sys
 
     if module in sys.modules:
         return secho(
@@ -44,11 +53,11 @@ def main(
         )
 
     from atexit import register
-    from importlib import import_module
+    from importlib.machinery import ModuleSpec
     from logging import getLogger
     from threading import Event, Thread
 
-    from reactivity.hmr.core import ReactiveModule, SyncReloader
+    from reactivity.hmr.core import ReactiveModule, ReactiveModuleLoader, SyncReloader
     from reactivity.hmr.utils import load
     from uvicorn import Config, Server
     from watchfiles import Change
@@ -74,6 +83,8 @@ def main(
         finish = Event()
 
         def run_server():
+            if not len([path for path in ReactiveModule.instances if not path.is_relative_to(reload_include)]):
+                logger.error("No files to watch for changes. The server will never reload.")
             server.run()
             finish.set()
 
@@ -92,8 +103,13 @@ def main(
 
         @cached_property
         @override
-        def entry_module(self) -> ReactiveModule:
-            return import_module(module)  # type: ignore
+        def entry_module(self):
+            if "." in module:
+                __import__(module.rsplit(".", 1)[0])  # ensure parent modules are imported
+            spec = ModuleSpec(module, loader := ReactiveModuleLoader(), origin=str(file), is_package=is_package)
+            sys.modules[module] = mod = loader.create_module(spec)
+            loader.exec_module(mod)
+            return mod
 
         @override
         def run_entry_file(self):
@@ -117,7 +133,6 @@ def main(
         @override
         def start_watching(self):
             from dowhen import when
-            from reactivity.hmr.core import ReactiveModule
 
             def log_server_restart():
                 logger.warning("Application '%s' has changed. Restarting server...", slug)
