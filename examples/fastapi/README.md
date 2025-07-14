@@ -1,6 +1,6 @@
 # FastAPI Example
 
-This example demonstrates how to integrate HMR with a FastAPI application.
+This example demonstrates how to use `uvicorn-hmr` with a FastAPI application.
 
 ## How to Run
 
@@ -10,7 +10,7 @@ After installing dependencies, run the following command in this directory:
 uvicorn-hmr main:app
 ```
 
-This will start a FastAPI development server with HMR enabled.
+This will start a FastAPI development server with HOT-reloading enabled.
 
 ## What to Observe
 
