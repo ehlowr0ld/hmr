@@ -57,7 +57,7 @@ def main(
     from logging import getLogger
     from threading import Event, Thread
 
-    from reactivity.hmr.core import ReactiveModule, ReactiveModuleLoader, SyncReloader
+    from reactivity.hmr.core import ReactiveModule, ReactiveModuleLoader, SyncReloader, __version__
     from reactivity.hmr.utils import load
     from uvicorn import Config, Server
     from watchfiles import Change
@@ -106,7 +106,13 @@ def main(
         def entry_module(self):
             if "." in module:
                 __import__(module.rsplit(".", 1)[0])  # ensure parent modules are imported
-            spec = ModuleSpec(module, loader := ReactiveModuleLoader(), origin=str(file), is_package=is_package)
+
+            if __version__ >= "0.6.4":
+                from reactivity.hmr.core import _loader as loader
+            else:
+                loader = ReactiveModuleLoader(file)  # type: ignore
+
+            spec = ModuleSpec(module, loader, origin=str(file), is_package=is_package)
             sys.modules[module] = mod = loader.create_module(spec)
             loader.exec_module(mod)
             return mod
