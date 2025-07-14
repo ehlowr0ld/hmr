@@ -57,7 +57,7 @@ def main(
     from logging import getLogger
     from threading import Event, Thread
 
-    from reactivity.hmr.core import ReactiveModule, ReactiveModuleLoader, SyncReloader, __version__
+    from reactivity.hmr.core import ReactiveModule, ReactiveModuleLoader, SyncReloader, __version__, is_relative_to_any
     from reactivity.hmr.utils import load
     from uvicorn import Config, Server
     from watchfiles import Change
@@ -83,7 +83,9 @@ def main(
         finish = Event()
 
         def run_server():
-            if not len([path for path in ReactiveModule.instances if not path.is_relative_to(reload_include)]):
+            path_to_watch = Path(reload_include).resolve()
+            ignored_paths = [Path(p).resolve() for p in reloader.excludes]
+            if all(is_relative_to_any(path, ignored_paths) or not path.relative_to(path_to_watch) for path in ReactiveModule.instances):
                 logger.error("No files to watch for changes. The server will never reload.")
             server.run()
             finish.set()
@@ -161,7 +163,7 @@ def main(
                 return super().start_watching()
 
     logger = getLogger("uvicorn.error")
-    Reloader().keep_watching_until_interrupt()
+    (reloader := Reloader()).keep_watching_until_interrupt()
     stop_server()
 
 
