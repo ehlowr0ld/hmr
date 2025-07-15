@@ -83,7 +83,7 @@ def main(
         finish = Event()
 
         def run_server():
-            watched_paths = [Path(p).resolve() for p in reload_include]
+            watched_paths = [Path(p).resolve() for p in (file, *reload_include)]
             ignored_paths = [Path(p).resolve() for p in reloader.excludes]
             if all(is_relative_to_any(path, ignored_paths) or not is_relative_to_any(path, watched_paths) for path in ReactiveModule.instances):
                 logger.error("No files to watch for changes. The server will never reload.")
