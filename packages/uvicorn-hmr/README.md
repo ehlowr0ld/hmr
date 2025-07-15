@@ -73,11 +73,17 @@ uvicorn-hmr main:app
 
 Everything will work as-expected, but with **hot** module reloading.
 
-## Configuration
+## CLI Arguments
 
 I haven't copied all the configurable options from `uvicorn`. But contributions are welcome!
 
-For now, `host`, `port`, `log-level`, `reload_include`, `reload_exclude`, `env-file` are supported and have exactly the same semantics and types as in `uvicorn`.
+For now, `host`, `port`, `log-level`, `env-file` are supported and have exactly the same semantics and types as in `uvicorn`.
+
+The behavior of `reload_include` and `reload_exclude` is different from uvicorn in several ways:
+
+1. Uvicorn allows specifying patterns (such as `*.py`), but in uvicorn-hmr only file or directory paths are allowed; patterns will be treated as literal paths.
+2. Uvicorn supports watching non-Python files (such as templates), but uvicorn-hmr currently only supports hot-reloading Python source files.
+3. Uvicorn always includes/excludes all Python files by default (even if you specify `reload-include` or `reload-exclude`, all Python files are still watched/excluded accordingly), but uvicorn-hmr only includes/excludes the paths you specify. If you do not provide `reload_include`, the current directory is included by default; if you do provide it, only the specified paths are included. The same applies to `reload_exclude`.
 
 The following options are supported but do not have any alternative in `uvicorn`:
 
