@@ -11,8 +11,8 @@ app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False, pre
 @app.command(no_args_is_help=True)
 def main(
     slug: Annotated[str, Argument()] = "main:app",
-    reload_include: str = str(Path.cwd()),
-    reload_exclude: str = ".venv",
+    reload_include: list[str] = [str(Path.cwd())],  # noqa: B006, B008
+    reload_exclude: list[str] = [".venv"],  # noqa: B006
     host: str = "localhost",
     port: int = 8000,
     env_file: Path | None = None,
@@ -83,9 +83,9 @@ def main(
         finish = Event()
 
         def run_server():
-            path_to_watch = Path(reload_include).resolve()
+            watched_paths = [Path(p).resolve() for p in reload_include]
             ignored_paths = [Path(p).resolve() for p in reloader.excludes]
-            if all(is_relative_to_any(path, ignored_paths) or not path.is_relative_to(path_to_watch) for path in ReactiveModule.instances):
+            if all(is_relative_to_any(path, ignored_paths) or not is_relative_to_any(path, watched_paths) for path in ReactiveModule.instances):
                 logger.error("No files to watch for changes. The server will never reload.")
             server.run()
             finish.set()
@@ -100,7 +100,7 @@ def main(
 
     class Reloader(SyncReloader):
         def __init__(self):
-            super().__init__(str(file), {reload_include}, {reload_exclude})
+            super().__init__(str(file), reload_include, reload_exclude)
             self.error_filter.exclude_filenames.add(__file__)  # exclude error stacks within this file
 
         @cached_property
