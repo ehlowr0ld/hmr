@@ -5,7 +5,7 @@
 
 HMR means Hot Module Reload / [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/). It is a feature that allows part of your app to be updated at runtime without a full rerun.
 
-In contrast to the traditional way of reloading Python applications (like [watchfiles CLI](https://watchfiles.helpmanual.io/cli/), [uvicorn --reload](https://www.uvicorn.org/settings/#reloading-with-watchfiles) or [Flask's](https://flask.palletsprojects.com/en/stable/server/) debug mode), HMR is just more efficient.
+Unlike traditional Python reloaders (such as [watchfiles CLI](https://watchfiles.helpmanual.io/cli/), [uvicorn --reload](https://www.uvicorn.org/settings/#reloading-with-watchfiles), or [Flask's](https://flask.palletsprojects.com/en/stable/server/) debug mode), HMR is much more efficient and robust.
 
 https://github.com/user-attachments/assets/f9ac6302-44dc-4a6d-86ae-f299fae7be80
 
@@ -32,7 +32,8 @@ If you have `uv` installed, you can try `hmr` directly with:
 uvx hmr path/to/your/entry-file.py
 ```
 
-Please note that hmr is still in early development. While it works well with simple modules, frameworks like ASGI servers or pytest may require specific integration methods.
+> [!TIP]
+> The hmr ecosystem is now production-ready. It has been carefully designed to handle many common edge cases and Pythonic *magic* patterns, including lazy imports, circular dependencies, dynamic imports, module-level `__getattr__`, decorators, and more. You can confidently use hmr in production environments if needed.
 
 https://github.com/user-attachments/assets/fb247649-193d-4eed-b778-05b02d47c3f6
 
