@@ -1,3 +1,4 @@
+import c
 from fastapi import APIRouter
 
 router = APIRouter(tags=["bot"])
@@ -10,4 +11,8 @@ router = APIRouter(tags=["bot"])
 
 @router.get("/hello")
 def _():
-    return {"hello": "world"}
+    # Or you can use `from c import value` here
+
+    # But if you `from c import value` outside this function,
+    # Changing it will trigger a reload of the server.
+    return {"hello": c.value}
