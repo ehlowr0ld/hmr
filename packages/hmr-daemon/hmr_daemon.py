@@ -1,23 +1,15 @@
+from functools import wraps
 from os import getenv
 from pathlib import Path
 from sys import argv
 from threading import Event, Thread, local
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from reactivity.hmr.core import BaseReloader
-
-    original_init = BaseReloader.__init__
-else:
-    original_init = None
+from reactivity.hmr import __file__ as hmr_file
+from reactivity.hmr.core import BaseReloader, ErrorFilter, SyncReloader, patch_meta_path
 
 
 def patch():
     global original_init
-
-    from functools import wraps
-
-    from reactivity.hmr.core import BaseReloader
 
     @wraps(original_init := BaseReloader.__init__)
     def wrapper(*args, **kwargs):
@@ -30,14 +22,13 @@ def patch():
 
 
 def main():
-    from reactivity.hmr.core import SyncReloader
-
     state.disabled = True
 
     class Reloader(SyncReloader):
         def __init__(self):
-            super().__init__("", excludes=(venv,) if (venv := getenv("VIRTUAL_ENV")) else ())
-            self.error_filter.exclude_filenames.add(__file__)
+            self.includes = (".",)
+            self.excludes = excludes
+            self.error_filter = ErrorFilter(*map(str, Path(hmr_file, "..").resolve().glob("**/*.py")), __file__)
 
         def start_watching(self):
             if shutdown_event.is_set():
@@ -54,6 +45,10 @@ def main():
     if not shutdown_event.is_set():
         Reloader().start_watching()
 
+
+excludes = (venv,) if (venv := getenv("VIRTUAL_ENV")) else ()
+
+patch_meta_path(excludes=excludes)
 
 shutdown_event = Event()
 
