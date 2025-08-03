@@ -19,7 +19,11 @@ def main(
     log_level: str | None = "info",
     refresh: Annotated[bool, Option("--refresh", help="Enable automatic browser page refreshing with `fastapi-reloader` (requires installation)")] = False,  # noqa: FBT002
     clear: Annotated[bool, Option("--clear", help="Clear the terminal before restarting the server")] = False,  # noqa: FBT002
+    reload: Annotated[bool, Option("--reload", hidden=True)] = False,  # noqa: FBT002
 ):
+    if reload:
+        secho("\nWarning: The `--reload` flag is deprecated in favor of `--refresh` to avoid ambiguity.\n", fg="yellow")
+        refresh = reload  # For backward compatibility, map reload to refresh
     if ":" not in slug:
         secho("Invalid slug: ", fg="red", nl=False)
         secho(slug, fg="yellow")
