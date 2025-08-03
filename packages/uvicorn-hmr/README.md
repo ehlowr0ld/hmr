@@ -9,7 +9,7 @@ It uses [`watchfiles`](https://github.com/samuelcolvin/watchfiles) to detect FS 
 re-executes the corresponding modules with [`hmr`](https://github.com/promplate/pyth-on-line/tree/main/packages/hmr) and restart the server (in the same process).
 
 **HOT** means the main process never restarts, and reloads are fine-grained (only the changed modules and their dependent modules are reloaded).
-Since the reload is on-demand and the server is not restarted on every save, it is much faster than the built-in `--reload` option provided by `uvicorn`.
+Since the python module reloading is on-demand and the server is not restarted on every save, it is much faster than the built-in `--reload` option provided by `uvicorn`.
 
 ## Why?
 
@@ -27,7 +27,7 @@ Since the reload is on-demand and the server is not restarted on every save, it 
    - Standard dunder metadata like `__name__`, `__doc__`, `__file__`, `__package__` are correctly set
    - ASGI lifecycles are preserved
 
-Normally, you can replace `uvicorn --reload` with `uvicorn-hmr` and everything will work as expected, with a much faster reload experience.
+Normally, you can replace `uvicorn --reload` with `uvicorn-hmr` and everything will work as expected, with a much faster refresh experience.
 
 ## Installation
 
@@ -43,10 +43,10 @@ pip install uvicorn-hmr
 pip install uvicorn-hmr[all]
 ```
 
-This will install `fastapi-reloader` too, which enables you to use `--reload` flag to reload the browser pages when the server restarts.
+This will install `fastapi-reloader` too, which enables you to use `--refresh` flag to refresh the browser pages when the server restarts.
 
 > [!NOTE]
-> When you enable the `--reload` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page reloading.
+> When you enable the `--refresh` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page refreshing.
 > This behavior differs from Uvicorn's built-in `--reload` functionality. (See the configuration section for more details.)
 >
 > Server reloading is a core feature of `uvicorn-hmr` and is always active, regardless of whether the `--reload` flag is set.
@@ -87,7 +87,7 @@ The behavior of `reload_include` and `reload_exclude` is different from uvicorn 
 
 The following options are supported but do not have any alternative in `uvicorn`:
 
-- `--reload`: Enables auto-refreshing of HTML pages in the browser whenever the server restarts. Useful for demo purposes and visual debugging. This is **totally different** from `uvicorn`'s built-in `--reload` option, which is always enabled and can't be disabled in `uvicorn-hmr` because hot-reloading is the core feature of this package.
+- `--refresh`: Enables auto-refreshing of HTML pages in the browser whenever the server restarts. Useful for demo purposes and visual debugging. This is **totally different** from `uvicorn`'s built-in `--reload` option, which is always enabled and can't be disabled in `uvicorn-hmr` because hot-reloading is the core feature of this package.
 - `--clear`: Wipes the terminal before each reload. Just like `vite` does by default.
 
 The two features above are opinionated and are disabled by default. They are just my personal practices. If you find them useful or want to suggest some other features, feel free to open an issue.

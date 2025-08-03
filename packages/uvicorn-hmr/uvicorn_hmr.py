@@ -17,7 +17,7 @@ def main(
     port: int = 8000,
     env_file: Path | None = None,
     log_level: str | None = "info",
-    reload: Annotated[bool, Option("--reload", help="Enable automatic browser page reload using `fastapi-reloader` (requires installation)")] = False,  # noqa: FBT002
+    refresh: Annotated[bool, Option("--refresh", help="Enable automatic browser page refreshing with `fastapi-reloader` (requires installation)")] = False,  # noqa: FBT002
     clear: Annotated[bool, Option("--clear", help="Clear the terminal before restarting the server")] = False,  # noqa: FBT002
 ):
     if ":" not in slug:
@@ -93,7 +93,7 @@ def main(
         Thread(target=run_server, daemon=True).start()
 
         def stop_server():
-            if reload:
+            if refresh:
                 _try_reload()
             server.should_exit = True
             finish.wait()
@@ -125,7 +125,7 @@ def main(
             with self.error_filter:
                 load(self.entry_module)
                 app = getattr(self.entry_module, attr)
-                if reload:
+                if refresh:
                     app: ASGIApplication = _try_patch(app)  # type: ignore
                 start_server(app)
 
@@ -176,13 +176,13 @@ def _display_path(path: str | Path):
 
 
 NOTE = """
-When you enable the `--reload` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page reloading.
+When you enable the `--refresh` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page refreshing.
 This behavior differs from Uvicorn's built-in `--reload` functionality.
 
-Server reloading is a core feature of `uvicorn-hmr` and is always active, regardless of whether the `--reload` flag is set.
-The `--reload` flag specifically controls auto-reloading of HTML pages, a feature not available in Uvicorn.
+Server reloading is a core feature of `uvicorn-hmr` and is always active, regardless of whether the `--refresh` flag is set.
+The `--refresh` flag specifically controls auto-refreshing of HTML pages, a feature not available in Uvicorn.
 
-If you don't need HTML page auto-reloading, simply omit the `--reload` flag.
+If you don't need HTML page auto-refreshing, simply omit the `--refresh` flag.
 If you do want this feature, ensure that `fastapi-reloader` is installed by running: `pip install fastapi-reloader` or `pip install uvicorn-hmr[all]`.
 """
 
