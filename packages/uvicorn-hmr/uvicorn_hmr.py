@@ -98,7 +98,10 @@ def main(
             if refresh:
                 _try_reload()
             server.should_exit = True
-            finish.wait()
+            try:
+                finish.wait()
+            except KeyboardInterrupt:
+                server.force_exit = True
 
     class Reloader(SyncReloader):
         def __init__(self):
