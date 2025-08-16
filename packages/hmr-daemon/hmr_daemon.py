@@ -5,7 +5,18 @@ from sys import argv
 from threading import Event, Thread, local
 
 from reactivity.hmr import __file__ as hmr_file
-from reactivity.hmr.core import BaseReloader, ErrorFilter, SyncReloader, patch_meta_path
+from reactivity.hmr.core import BaseReloader, ErrorFilter, ReactiveModuleLoader, SyncReloader, patch_meta_path
+
+
+def get_code(_: ReactiveModuleLoader, fullname: str):
+    from ast import parse
+    from importlib.util import find_spec
+
+    if (spec := find_spec(fullname)) is not None and (file := spec.origin) is not None:
+        return compile(parse(Path(file).read_text(), str(file)), str(file), "exec", dont_inherit=True)
+
+
+ReactiveModuleLoader.get_code = get_code  # type: ignore
 
 
 def patch():
