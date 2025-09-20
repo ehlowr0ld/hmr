@@ -79,10 +79,8 @@ class PipeReloader(SyncReloader):
                 return
 
             # Process events - each line is a complete events list
-            events_data = loads(line.decode())
-            events = {(Change(event_int), path) for event_int, path in events_data}
-            if events:
-                yield events
+            if events_data := loads(line.decode()):
+                yield {(Change(event_int), path) for event_int, path in events_data}
 
     def start_watching(self):
         for events in self.iterate_pipe_events():
