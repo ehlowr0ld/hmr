@@ -146,7 +146,7 @@ def main(
                     return
 
                 if clear:
-                    print("\033c", end="")
+                    print("\033c", end="", flush=True)
                 logger.warning("Watchfiles detected changes in %s. Reloading...", ", ".join(map(_display_path, paths)))
             return super().on_events(events)
 
