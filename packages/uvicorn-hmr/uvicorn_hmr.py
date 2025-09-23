@@ -57,9 +57,9 @@ def main(
     from threading import Event, Thread
 
     from reactivity.hmr.core import ReactiveModule, SyncReloader, is_relative_to_any
+    from reactivity.hmr.fs import fs_signals
     from reactivity.hmr.utils import on_dispose
     from uvicorn import Config, Server
-    from watchfiles import Change
 
     cwd = str(Path.cwd())
     if cwd not in sys.path:
@@ -115,20 +115,12 @@ def main(
                 self.stop_server = stop_server
 
         @override
-        def on_events(self, events):
-            if events:
-                paths: list[Path] = []
-                for type, file in events:
-                    path = Path(file).resolve()
-                    if type != Change.deleted and path in ReactiveModule.instances:
-                        paths.append(path)
-                if not paths:
-                    return
-
+        def on_changes(self, files: set[Path]):
+            if files.intersection((*ReactiveModule.instances, *fs_signals)):
                 if clear:
                     print("\033c", end="", flush=True)
-                logger.warning("Watchfiles detected changes in %s. Reloading...", ", ".join(map(_display_path, paths)))
-            return super().on_events(events)
+                logger.warning("Watchfiles detected changes in %s. Reloading...", ", ".join(map(_display_path, files)))
+                return super().on_changes(files)
 
     __load = ReactiveModule.__load if TYPE_CHECKING else ReactiveModule._ReactiveModule__load  # noqa: SLF001
 
