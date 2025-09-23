@@ -105,7 +105,7 @@ def main(
                     if self.still_running:
                         logger.warning("Application '%s' has changed. Restarting server...", slug)
                     if refresh:
-                        _try_reload()
+                        _try_refresh()
                     server.should_exit = True
                     try:
                         finish.wait()
@@ -177,7 +177,7 @@ def _try_patch(app):
         raise
 
 
-def _try_reload():
+def _try_refresh():
     try:
         from fastapi_reloader import send_reload_signal
 
