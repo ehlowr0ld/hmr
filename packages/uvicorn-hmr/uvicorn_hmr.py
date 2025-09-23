@@ -69,7 +69,12 @@ def main(
         def __init__(self):
             super().__init__(str(file), [str(file), *reload_include], reload_exclude)
             self.error_filter.exclude_filenames.add(__file__)  # exclude error stacks within this file
-            register(lambda: self.stop_server())
+            self.still_running = True
+
+            @register
+            def _():
+                self.still_running = False
+                self.stop_server()
 
         def stop_server(self):
             pass
@@ -97,7 +102,8 @@ def main(
                 Thread(target=run_server, daemon=True).start()
 
                 def stop_server():
-                    logger.warning("Application '%s' has changed. Restarting server...", slug)
+                    if self.still_running:
+                        logger.warning("Application '%s' has changed. Restarting server...", slug)
                     if refresh:
                         _try_reload()
                     server.should_exit = True
