@@ -52,6 +52,7 @@ def main(
         )
 
     from atexit import register
+    from contextlib import suppress
     from importlib import import_module
     from logging import getLogger
     from threading import Event, Thread
@@ -107,10 +108,13 @@ def main(
                     if refresh:
                         _try_refresh()
                     server.should_exit = True
-                    try:
-                        finish.wait()
-                    except KeyboardInterrupt:
-                        server.force_exit = True
+                    with suppress(KeyboardInterrupt):
+                        while not finish.wait(0.01):
+                            pass
+                    server.force_exit = True
+                    with suppress(KeyboardInterrupt):
+                        while not finish.wait(0.01):
+                            pass
 
                 self.stop_server = stop_server
 
