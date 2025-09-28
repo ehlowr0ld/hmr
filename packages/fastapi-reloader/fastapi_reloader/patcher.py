@@ -1,4 +1,5 @@
 from collections.abc import Awaitable, Callable
+from contextlib import asynccontextmanager
 from math import inf
 from typing import TypeGuard
 
@@ -18,7 +19,12 @@ def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
 
 
 def patch_for_auto_reloading(app: ASGIApp):
-    new_app = FastAPI(openapi_url=None, lifespan=lambda _: LifespanManager(app, inf, inf))  # type: ignore
+    @asynccontextmanager
+    async def lifespan(_):
+        async with LifespanManager(app, inf, inf):
+            yield
+
+    new_app = FastAPI(openapi_url=None, lifespan=lifespan)
     new_app.include_router(reload_router)
     new_app.mount("/", app)
 
