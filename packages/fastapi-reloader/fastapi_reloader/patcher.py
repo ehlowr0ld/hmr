@@ -1,6 +1,8 @@
 from collections.abc import Awaitable, Callable
+from math import inf
 from typing import TypeGuard
 
+from asgi_lifespan import LifespanManager
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse
 from starlette.middleware import Middleware
@@ -16,7 +18,7 @@ def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
 
 
 def patch_for_auto_reloading(app: ASGIApp):
-    new_app = FastAPI(openapi_url=None)
+    new_app = FastAPI(openapi_url=None, lifespan=lambda _: LifespanManager(app, inf, inf))  # type: ignore
     new_app.include_router(reload_router)
     new_app.mount("/", app)
 
