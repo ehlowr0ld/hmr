@@ -63,7 +63,7 @@ jobs:
           uvx ruff check --select RUF100 --show-fixes --fix packages/${{ matrix.dir }}
       - name: Build packages
         run: |
-          uv build packages/${{ matrix.dir }}
+          uv build packages/${{ matrix.dir }} --wheel
       - name: Publish to PyPI
         continue-on-error: true
         run: uv publish
