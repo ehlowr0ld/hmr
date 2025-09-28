@@ -43,17 +43,15 @@ pip install uvicorn-hmr
 pip install uvicorn-hmr[all]
 ```
 
-This will install `fastapi-reloader` too, which enables you to use `--refresh` flag to refresh the browser pages when the server restarts.
+This will also install [`fastapi-reloader`](../fastapi-reloader/), enabling the `--refresh` flag for automatic browser page refresh.
 
-> [!NOTE]
-> When you enable the `--refresh` flag, it means you want to use the `fastapi-reloader` package to enable automatic HTML page refreshing.
-> This behavior differs from Uvicorn's built-in `--reload` functionality. (See the configuration section for more details.)
+> ### About the auto refresher
 >
-> Server reloading is a core feature of `uvicorn-hmr` and is always active, regardless of whether the `--reload` flag is set.
-> The `--reload` flag specifically controls auto-reloading of HTML pages, a feature not available in Uvicorn.
+> The `--refresh` flag enables automatic HTML page refresh via the `fastapi-reloader` package. This differs from Uvicorn's built-in `--reload` functionality (see configuration section for details).
 >
-> If you don't need HTML page auto-reloading, simply omit the `--reload` flag.
-> If you do want this feature, ensure that `fastapi-reloader` is installed by running: `pip install fastapi-reloader` or `pip install uvicorn-hmr[all]`.
+> Server reloading is a core feature of `uvicorn-hmr` and is always active, regardless of the `--refresh` flag. The `--refresh` flag specifically controls HTML page auto-refresh, a feature not available in standard Uvicorn.
+>
+> If you don't need HTML page auto-refresh, simply omit the `--refresh` flag. If you do, ensure `fastapi-reloader` is installed via `pip install fastapi-reloader` or `pip install uvicorn-hmr[all]`.
 
 </details>
 
