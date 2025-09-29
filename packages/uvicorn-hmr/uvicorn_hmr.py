@@ -51,14 +51,16 @@ def main(
             fg="red",
         )
 
+    from asyncio import Event, ensure_future, run
+    from contextlib import asynccontextmanager, suppress
     from importlib import import_module
     from logging import getLogger
     from signal import SIGINT
-    from threading import Event
 
-    from reactivity.hmr.api import SyncReloaderAPI
-    from reactivity.hmr.core import ReactiveModule, is_relative_to_any
+    from reactivity.hmr.api import AsyncReloader
+    from reactivity.hmr.core import HMR_CONTEXT, ReactiveModule, is_relative_to_any
     from reactivity.hmr.fs import fs_signals
+    from reactivity.hmr.hooks import call_post_reload_hooks, call_pre_reload_hooks
     from reactivity.hmr.utils import on_dispose
     from uvicorn import Config, Server
 
@@ -66,20 +68,17 @@ def main(
     if cwd not in sys.path:
         sys.path.insert(0, cwd)
 
-    class Reloader(SyncReloaderAPI):
+    class Reloader(AsyncReloader):
         def __init__(self):
             super().__init__(str(file), [str(file), *reload_include], reload_exclude)
             self.error_filter.exclude_filenames.add(__file__)  # exclude error stacks within this file
 
-        @override
-        def run_entry_file(self):
+        async def run(self):
             self.ready = Event()
             if server:
                 logger.warning("Application '%s' has changed. Restarting server...", slug)
                 server.should_exit = True
-                finish.wait()
-                if refresh:
-                    _try_refresh()
+                await finish.wait()
             with self.error_filter:
                 self.app = getattr(import_module(module), attr)
                 if refresh:
@@ -89,6 +88,22 @@ def main(
                 ignored_paths = [Path(p).resolve() for p in self.excludes]
                 if all(is_relative_to_any(path, ignored_paths) or not is_relative_to_any(path, watched_paths) for path in ReactiveModule.instances):
                     logger.error("No files to watch for changes. The server will never reload.")
+
+        @asynccontextmanager
+        async def using(self):
+            call_pre_reload_hooks()
+
+            run_effect = HMR_CONTEXT.async_effect(self.run, call_immediately=False)
+            await run_effect()
+
+            with suppress(KeyboardInterrupt), run_effect:
+                call_post_reload_hooks()
+                reloader_task = ensure_future(self.start_watching())
+                try:
+                    yield self
+                finally:
+                    self.stop_watching()
+                    await reloader_task
 
         @override
         def on_changes(self, files: set[Path]):
@@ -106,6 +121,12 @@ def main(
                 raise KeyboardInterrupt  # allow immediate shutdown on third interrupt
             return super().handle_exit(sig, frame)
 
+        if refresh:
+
+            def shutdown(self, sockets=None):
+                _try_refresh()
+                return super().shutdown(sockets)
+
     __load = ReactiveModule.__load if TYPE_CHECKING else ReactiveModule._ReactiveModule__load  # noqa: SLF001
 
     @wraps(original_load := __load.method)
@@ -120,19 +141,26 @@ def main(
 
     need_restart = True
     server = None
-    with (reloader := Reloader()):
-        while need_restart:
-            need_restart = False
-            with reloader.error_filter:
-                finish = Event()
-                reloader.ready.wait()
-                server = _Server(Config(reloader.app, host, port, env_file=env_file, log_level=log_level))
-                try:
-                    server.run()
-                except KeyboardInterrupt:
-                    break
-                finally:
-                    finish.set()
+    finish = Event()
+
+    async def main():
+        nonlocal need_restart, server, finish
+
+        async with Reloader().using() as reloader:
+            while need_restart:
+                need_restart = False
+                with reloader.error_filter:
+                    finish = Event()
+                    await reloader.ready.wait()
+                    server = _Server(Config(reloader.app, host, port, env_file=env_file, log_level=log_level))
+                    try:
+                        await server.serve()
+                    except KeyboardInterrupt:
+                        break
+                    finally:
+                        finish.set()
+
+    run(main())
 
     __load.method = original_load
 
