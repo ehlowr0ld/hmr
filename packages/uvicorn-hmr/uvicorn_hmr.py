@@ -70,9 +70,10 @@ def main(
         def __init__(self):
             super().__init__(str(file), [str(file), *reload_include], reload_exclude)
             self.error_filter.exclude_filenames.add(__file__)  # exclude error stacks within this file
+            self.ready = Event()
 
         async def run(self):
-            self.ready = Event()
+            self.ready.clear()
             if server:
                 logger.warning("Application '%s' has changed. Restarting server...", slug)
                 server.should_exit = True
@@ -158,15 +159,16 @@ def main(
     finish = Event()
 
     async def main():
-        nonlocal need_restart, server, finish
+        nonlocal need_restart, server
 
         async with Reloader().using() as reloader:
             while need_restart:
                 need_restart = False
                 with reloader.error_filter:
-                    finish = Event()
+                    finish.clear()
                     await reloader.ready.wait()
                     _Server, Config = lazy_import_from_uvicorn()  # noqa: N806
+                    main_loop_started.clear()
                     server = _Server(Config(reloader.app, host, port, env_file=env_file, log_level=log_level))
                     try:
                         await server.serve()
