@@ -177,10 +177,10 @@ def main(
                     finish.clear()
                     await reloader.ready.wait()
                     _Server, Config = lazy_import_from_uvicorn()  # noqa: N806
-                    main_loop_started.clear()
                     server = _Server(Config(reloader.app, host, port, env_file=env_file, log_level=log_level))
                     try:
                         await server.serve()
+                        main_loop_started.clear()
                     except KeyboardInterrupt:
                         break
                     finally:
