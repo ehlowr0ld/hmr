@@ -57,8 +57,7 @@ def main(
     from logging import getLogger
     from signal import SIGINT
 
-    from reactivity.hmr.api import AsyncReloader
-    from reactivity.hmr.core import HMR_CONTEXT, ReactiveModule, is_relative_to_any
+    from reactivity.hmr.core import HMR_CONTEXT, AsyncReloader, ReactiveModule, is_relative_to_any
     from reactivity.hmr.fs import fs_signals
     from reactivity.hmr.hooks import call_post_reload_hooks, call_pre_reload_hooks
     from reactivity.hmr.utils import on_dispose
