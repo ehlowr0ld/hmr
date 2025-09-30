@@ -71,22 +71,31 @@ def main(
             super().__init__(str(file), [str(file), *reload_include], reload_exclude)
             self.error_filter.exclude_filenames.add(__file__)  # exclude error stacks within this file
             self.ready = Event()
+            self._run = HMR_CONTEXT.async_derived(self.__run)
 
-        async def run(self):
-            self.ready.clear()
+        async def __run(self):
             if server:
                 logger.warning("Application '%s' has changed. Restarting server...", slug)
+                await main_loop_started.wait()
                 server.should_exit = True
                 await finish.wait()
             with self.error_filter:
                 self.app = getattr(import_module(module), attr)
                 if refresh:
                     self.app = _try_patch(self.app)
-                self.ready.set()
                 watched_paths = [Path(p).resolve() for p in self.includes]
                 ignored_paths = [Path(p).resolve() for p in self.excludes]
                 if all(is_relative_to_any(path, ignored_paths) or not is_relative_to_any(path, watched_paths) for path in ReactiveModule.instances):
                     logger.error("No files to watch for changes. The server will never reload.")
+            return self.app
+
+        async def run(self):
+            self.ready.clear()
+            while True:
+                await self._run()
+                if not self._run.dirty:  # in case user code changed during reload
+                    break
+            self.ready.set()
 
         @asynccontextmanager
         async def using(self):
