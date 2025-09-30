@@ -52,7 +52,7 @@ def main(
 
     from asyncio import Event, ensure_future, run
     from contextlib import asynccontextmanager, suppress
-    from functools import wraps
+    from functools import cache, wraps
     from importlib import import_module
     from logging import getLogger
     from signal import SIGINT
@@ -61,7 +61,6 @@ def main(
     from reactivity.hmr.fs import fs_signals
     from reactivity.hmr.hooks import call_post_reload_hooks, call_pre_reload_hooks
     from reactivity.hmr.utils import on_dispose
-    from uvicorn import Config, Server
 
     cwd = str(Path.cwd())
     if cwd not in sys.path:
@@ -104,6 +103,10 @@ def main(
                     self.stop_watching()
                     await reloader_task
 
+        async def start_watching(self):
+            await main_loop_started.wait()
+            return await super().start_watching()
+
         @override
         def on_changes(self, files: set[Path]):
             if files.intersection((*ReactiveModule.instances, *(path for path, s in fs_signals.items() if s.subscribers))):
@@ -114,17 +117,29 @@ def main(
                 need_restart = True
                 return super().on_changes(files)
 
-    class _Server(Server):
-        def handle_exit(self, sig, frame):
-            if self.force_exit and sig == SIGINT:
-                raise KeyboardInterrupt  # allow immediate shutdown on third interrupt
-            return super().handle_exit(sig, frame)
+    main_loop_started = Event()
 
-        if refresh:
+    @cache
+    def lazy_import_from_uvicorn():
+        from uvicorn import Config, Server
 
-            def shutdown(self, sockets=None):
-                _try_refresh()
-                return super().shutdown(sockets)
+        class _Server(Server):
+            def handle_exit(self, sig, frame):
+                if self.force_exit and sig == SIGINT:
+                    raise KeyboardInterrupt  # allow immediate shutdown on third interrupt
+                return super().handle_exit(sig, frame)
+
+            async def main_loop(self):
+                main_loop_started.set()
+                return await super().main_loop()
+
+            if refresh:
+
+                def shutdown(self, sockets=None):
+                    _try_refresh()
+                    return super().shutdown(sockets)
+
+        return _Server, Config
 
     __load = ReactiveModule.__load if TYPE_CHECKING else ReactiveModule._ReactiveModule__load  # noqa: SLF001
 
@@ -151,6 +166,7 @@ def main(
                 with reloader.error_filter:
                     finish = Event()
                     await reloader.ready.wait()
+                    _Server, Config = lazy_import_from_uvicorn()  # noqa: N806
                     server = _Server(Config(reloader.app, host, port, env_file=env_file, log_level=log_level))
                     try:
                         await server.serve()
