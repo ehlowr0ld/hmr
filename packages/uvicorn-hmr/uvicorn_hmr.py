@@ -1,5 +1,4 @@
 import sys
-from functools import wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, override
 
@@ -53,6 +52,7 @@ def main(
 
     from asyncio import Event, ensure_future, run
     from contextlib import asynccontextmanager, suppress
+    from functools import wraps
     from importlib import import_module
     from logging import getLogger
     from signal import SIGINT
