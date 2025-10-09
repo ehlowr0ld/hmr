@@ -170,7 +170,6 @@ def main(
             while need_restart:
                 need_restart = False
                 with reloader.error_filter:
-                    finish.clear()
                     await reloader.ready.wait()
                     _Server, Config = lazy_import_from_uvicorn()  # noqa: N806
                     server = _Server(Config(reloader.app, host, port, env_file=env_file, log_level=log_level))
@@ -181,6 +180,7 @@ def main(
                         break
                     finally:
                         finish.set()
+                        finish.clear()
 
     run(main())
 
