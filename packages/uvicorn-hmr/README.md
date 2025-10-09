@@ -18,8 +18,8 @@ Since the python module reloading is on-demand and the server is not restarted o
    - Your changes usually affect only one single file, the rest of your application remains unchanged.
 2. `hmr` tracks dependencies at runtime, remembers the relationships between your modules and only reruns necessary modules.
 3. Since v0.7, `hmr` also tracks file system access - any file your code reads (config files, templates, data files, etc.) becomes reactive and will trigger reloads when modified.
-5. So you can save a lot of time by not restarting the whole process on every file change. You can see a significant speedup for debugging large applications.
-6. Although magic is involved, we thought and tested them very carefully, so everything works just as-wished.
+4. So you can save a lot of time by not restarting the whole process on every file change. You can see a significant speedup for debugging large applications.
+5. Although magic is involved, we thought and tested them very carefully, so everything works just as-wished.
    - Your lazy loading through module-level `__getattr__` still works
    - Your runtime imports through `importlib.import_module` or even `__import__` still work
    - Even valid circular imports between `__init__.py` and sibling modules still work
