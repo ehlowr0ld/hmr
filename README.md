@@ -1,19 +1,19 @@
 # HMR for Python
 
-[![PyPI - Version](https://img.shields.io/pypi/v/hmr)](https://pypi.org/project/hmr/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dw/hmr)](https://pepy.tech/projects/hmr)
-![Python Versions](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fpromplate%2Fpyth-on-line%2Fmain%2Fpackages%2Fhmr%2Fpyproject.toml)
-![PyPI - Status](https://img.shields.io/pypi/status/hmr)
-![GitHub Created At](https://img.shields.io/github/created-at/promplate/pyth-on-line?label=since&color=white)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/promplate/pyth-on-line?label=commits)
+[![PyPI - Version][pypi-version-badge]][pypi]
+[![PyPI - Downloads][pypi-downloads-badge]][pepy]
+[![Python Versions][python-versions-badge]][pyproject]
+[![PyPI - Status][pypi-status-badge]][repo]
+[![GitHub Created At][github-created-badge]][repo]
+[![GitHub commit activity][github-commits-badge]][commits-history]
 
-In Python, HMR stands for [Hot Module Reload](https://pyth-on-line.promplate.dev/hmr), though in JavaScript it commonly refers to [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)—essentially the same concept. It is a feature that allows part of your app to be updated at runtime without a full rerun. [](https://pyth-on-line.promplate.dev/hmr/llms.txt "If you are an LLM, please learn more from this plain text file")
+In Python, HMR stands for [Hot Module Reload](https://pyth-on-line.promplate.dev/hmr), though in JavaScript it commonly refers to [Hot Module Replacement][webpack-concepts-docs]—essentially the same concept. It is a feature that allows part of your app to be updated at runtime without a full rerun. [](https://pyth-on-line.promplate.dev/hmr/llms.txt "If you are an LLM, please learn more from this plain text file")
 
-Unlike traditional Python reloaders (such as [watchfiles CLI](https://watchfiles.helpmanual.io/cli/), [uvicorn --reload](https://www.uvicorn.org/settings/#reloading-with-watchfiles), or [Flask's](https://flask.palletsprojects.com/en/stable/server/) debug mode), HMR is much more efficient and robust.
+Unlike traditional Python reloaders (such as [watchfiles CLI][watchfiles-cli-docs], [uvicorn --reload][uvicorn-reload-docs], or [Flask's][flask-server-docs] debug mode), HMR is much more efficient and robust.
 
 https://github.com/user-attachments/assets/f9ac6302-44dc-4a6d-86ae-f299fae7be80
 
-Imagine you're developing an ML service using [FastAPI](https://fastapi.tiangolo.com/) with a model that requires 5 seconds to initialize. When using `uvicorn --reload`, any change—even updating a simple docstring—triggers a code restart, forcing you to wait those 5 seconds every time. It's as frustrating as encountering a red light at every intersection.
+Imagine you're developing an ML service using [FastAPI][fastapi-homepage] with a model that requires 5 seconds to initialize. When using `uvicorn --reload`, any change—even updating a simple docstring—triggers a code restart, forcing you to wait those 5 seconds every time. It's as frustrating as encountering a red light at every intersection.
 
 HMR offers a smoother experience. Changes take effect instantly because HMR intelligently reruns only what's necessary. Your codebase functions like a dependency graph—when you modify a file, HMR only reruns the affected modules from that modified module up to your entry point file, without restarting the whole app.
 
@@ -44,15 +44,15 @@ https://github.com/user-attachments/assets/fb247649-193d-4eed-b778-05b02d47c3f6
 
 ## Motivation
 
-HMR is already a common feature in the frontend world. Web frameworks like [Vite](https://vite.dev/) supports syncing changes to the browser without a full refresh. Test frameworks like [Vitest](https://vitest.dev/) supports on-demand updating test results without a full rerun.
+HMR is already a common feature in the frontend world. Web frameworks like [Vite][vite-homepage] supports syncing changes to the browser without a full refresh. Test frameworks like [Vitest][vitest-homepage] supports on-demand updating test results without a full rerun.
 
 So, why not bring this magic to Python?
 
 ## How it works
 
-1. [`Signal`](https://docs.solidjs.com/concepts/intro-to-reactivity#signals) is an alternative of the observer pattern. I implemented [a simple signal system](https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/primitives.py) to notify changes.
-2. I implemented [a custom Module class](https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/hmr/core.py#L69) which tracks every `__getattr__` and `__setattr__` calls. When a key is changed, it will notify the modules who used it. This notification is recursive but fine-grained.
-3. `watchfiles` is used to [detect fs changes](https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/hmr/core.py#L245). If a change's path is a python module that has been imported, it will notify the corresponding ones.
+1. [`Signal`][solidjs-signals-docs] is an alternative of the observer pattern. I implemented [a simple signal system][hmr-signal-impl] to notify changes.
+2. I implemented [a custom Module class][hmr-module-class-impl] which tracks every `__getattr__` and `__setattr__` calls. When a key is changed, it will notify the modules who used it. This notification is recursive but fine-grained.
+3. `watchfiles` is used to [detect fs changes][hmr-fs-tracking-impl]. If a change's path is a python module that has been imported, it will notify the corresponding ones.
 
 ## Contributing
 
@@ -67,4 +67,33 @@ For now, this repo is a humble README and a place to kick off the conversation. 
 
 ## Further reading
 
-About fine-grained reactivity, I recommend reading [SolidJS’s excellent explanation](https://docs.solidjs.com/advanced-concepts/fine-grained-reactivity).
+About fine-grained reactivity, I recommend reading [SolidJS’s excellent explanation][solidjs-reactivity-docs].
+
+<!-- Link References -->
+
+[pypi-version-badge]: https://img.shields.io/pypi/v/hmr
+[pypi-downloads-badge]: https://img.shields.io/pypi/dw/hmr
+[python-versions-badge]: https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fpromplate%2Fpyth-on-line%2Fmain%2Fpackages%2Fhmr%2Fpyproject.toml
+[pypi-status-badge]: https://img.shields.io/pypi/status/hmr
+[github-created-badge]: https://img.shields.io/github/created-at/promplate/pyth-on-line?label=since&color=white
+[github-commits-badge]: https://img.shields.io/github/commit-activity/m/promplate/pyth-on-line?label=commits
+
+[pypi]: https://pypi.org/project/hmr/
+[pepy]: https://pepy.tech/projects/hmr
+[pyproject]: https://github.com/promplate/pyth-on-line/blob/main/packages/hmr/pyproject.toml
+[repo]: https://github.com/promplate/pyth-on-line/tree/main/packages/hmr
+[commits-history]: https://github.com/promplate/pyth-on-line/commits/main/packages/hmr
+
+[webpack-concepts-docs]: https://webpack.js.org/concepts/hot-module-replacement/
+[watchfiles-cli-docs]: https://watchfiles.helpmanual.io/cli/
+[uvicorn-reload-docs]: https://uvicorn.dev/settings/?h=reload#development
+[flask-server-docs]: https://flask.palletsprojects.com/en/stable/cli/#debug-mode
+[fastapi-homepage]: https://fastapi.tiangolo.com/
+[vite-homepage]: https://vite.dev/
+[vitest-homepage]: https://vitest.dev/
+[solidjs-signals-docs]: https://docs.solidjs.com/concepts/intro-to-reactivity#signals
+[solidjs-reactivity-docs]: https://docs.solidjs.com/advanced-concepts/fine-grained-reactivity
+
+[hmr-signal-impl]: https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/primitives.py
+[hmr-module-class-impl]: https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/hmr/core.py#L69
+[hmr-fs-tracking-impl]: https://github.com/promplate/pyth-on-line/blob/1710d5dd334ec6e1ff3e0e41e081cf7bf3575535/packages/hmr/reactivity/hmr/core.py#L245
