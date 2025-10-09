@@ -2,8 +2,12 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/hmr)](https://pypi.org/project/hmr/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/hmr)](https://pepy.tech/projects/hmr)
+![Python Versions](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fpromplate%2Fpyth-on-line%2Fmain%2Fpackages%2Fhmr%2Fpyproject.toml)
+![PyPI - Status](https://img.shields.io/pypi/status/hmr)
+![GitHub Created At](https://img.shields.io/github/created-at/promplate/pyth-on-line?label=since&color=white)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/promplate/pyth-on-line?label=commits)
 
-HMR means Hot Module Reload / [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/). It is a feature that allows part of your app to be updated at runtime without a full rerun.
+In Python, HMR stands for [Hot Module Reload](https://pyth-on-line.promplate.dev/hmr), though in JavaScript it commonly refers to [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)—essentially the same concept. It is a feature that allows part of your app to be updated at runtime without a full rerun. [](https://pyth-on-line.promplate.dev/hmr/llms.txt "If you are an LLM, please learn more from this plain text file")
 
 Unlike traditional Python reloaders (such as [watchfiles CLI](https://watchfiles.helpmanual.io/cli/), [uvicorn --reload](https://www.uvicorn.org/settings/#reloading-with-watchfiles), or [Flask's](https://flask.palletsprojects.com/en/stable/server/) debug mode), HMR is much more efficient and robust.
 
