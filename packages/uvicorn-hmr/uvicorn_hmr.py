@@ -51,7 +51,6 @@ def main(
         )
 
     from asyncio import Event, ensure_future, run
-    from contextlib import asynccontextmanager, suppress
     from functools import cache, wraps
     from importlib import import_module
     from logging import getLogger
@@ -97,21 +96,18 @@ def main(
                     break
             self.ready.set()
 
-        @asynccontextmanager
-        async def using(self):
+        async def __aenter__(self):
             call_pre_reload_hooks()
+            self.__run_effect = HMR_CONTEXT.async_effect(self.run, call_immediately=False)
+            await self.__run_effect()
+            call_post_reload_hooks()
+            self.__reloader_task = ensure_future(self.start_watching())
+            return self
 
-            run_effect = HMR_CONTEXT.async_effect(self.run, call_immediately=False)
-            await run_effect()
-
-            with suppress(KeyboardInterrupt), run_effect:
-                call_post_reload_hooks()
-                reloader_task = ensure_future(self.start_watching())
-                try:
-                    yield self
-                finally:
-                    self.stop_watching()
-                    await reloader_task
+        async def __aexit__(self, *_):
+            self.stop_watching()
+            self.__run_effect.dispose()
+            await self.__reloader_task
 
         async def start_watching(self):
             await main_loop_started.wait()
@@ -170,7 +166,7 @@ def main(
     async def main():
         nonlocal need_restart, server
 
-        async with Reloader().using() as reloader:
+        async with Reloader() as reloader:
             while need_restart:
                 need_restart = False
                 with reloader.error_filter:
