@@ -33,6 +33,11 @@ async def heartbeat():
     return Response(status_code=200)
 
 
+@reload_router.get("/poller.js")
+async def get_poller_js():
+    return Response(get_js(), media_type="application/javascript")
+
+
 @reload_router.get("/{key:int}")
 async def simple_refresh_trigger(key: int):
     async def event_generator():

@@ -10,7 +10,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from .core import get_js, reload_router
+from .core import reload_router
 
 
 def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
@@ -40,7 +40,8 @@ def patch_for_auto_reloading(app: ASGIApp):
                     yield chunk
             else:
                 yield res.body
-            yield f"\n\n <script> {get_js()} </script>".encode()
+
+            yield b'\n\n <script src="/---fastapi-reloader---/poller.js"></script>'
 
         headers = {k: v for k, v in res.headers.items() if k.lower() not in {"content-length", "content-encoding", "transfer-encoding"}}
 
