@@ -75,6 +75,7 @@ def main(
         async def __run(self):
             if server:
                 logger.warning("Application '%s' has changed. Restarting server...", slug)
+                self.ready.clear()
                 await main_loop_started.wait()
                 server.should_exit = True
                 await finish.wait()
@@ -89,7 +90,6 @@ def main(
             return self.app
 
         async def run(self):
-            self.ready.clear()
             while True:
                 await self._run()
                 if not self._run.dirty:  # in case user code changed during reload
@@ -181,6 +181,7 @@ def main(
                     finally:
                         finish.set()
                         finish.clear()
+                        server = None
 
     run(main())
 
