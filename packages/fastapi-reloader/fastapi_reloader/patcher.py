@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
 from copy import copy
 from math import inf
-from typing import TypeGuard
+from typing import Generic, TypeGuard, TypeVar
 
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI, Request, Response
@@ -40,10 +40,25 @@ async def _injection_http_middleware(request: Request, call_next: Callable[[Requ
     return StreamingResponse(response(), res.status_code, headers, res.media_type)
 
 
-injection_middleware = Middleware(BaseHTTPMiddleware, dispatch=_injection_http_middleware)
+T = TypeVar("T", bound=ASGIApp)
 
 
-def _reloader_middleware(app: ASGIApp):
+class UniversalMiddleware(Middleware, Generic[T]):  # noqa: UP046
+    """Adapt an ASGI middleware so it can serve both Starlette/FastAPI middleware slots and plain ASGI usage."""
+
+    def __init__(self, asgi_middleware: Callable[[ASGIApp], T]):
+        self.fn = asgi_middleware
+        super().__init__(self)
+
+    def __call__(self, app):
+        return self.fn(app)
+
+
+html_injection_middleware = UniversalMiddleware(lambda app: BaseHTTPMiddleware(app, _injection_http_middleware))
+"""This middleware injects the HMR client script into HTML responses."""
+
+
+def _wrap_asgi_app(app: ASGIApp):
     @asynccontextmanager
     async def lifespan(_):
         async with LifespanManager(app, inf, inf):
@@ -56,13 +71,21 @@ def _reloader_middleware(app: ASGIApp):
     return new_app
 
 
-def patch_for_auto_reloading(app: ASGIApp):
+reloader_route_middleware = UniversalMiddleware(_wrap_asgi_app)
+"""This middleware wraps the app with a FastAPI app that handles reload signals."""
+
+
+def patch_for_auto_reloading(app: ASGIApp):  # this function is preserved for backward compatibility
     if isinstance(app, Starlette):  # both FastAPI and Starlette have user_middleware attribute
         new_app = copy(app)
-        new_app.user_middleware = [*app.user_middleware, injection_middleware]  # before compression middlewares
-        return _reloader_middleware(new_app)
+        new_app.user_middleware = [*app.user_middleware, html_injection_middleware]  # before compression middlewares
+        return _wrap_asgi_app(new_app)
 
-    new_app = _reloader_middleware(app)
-    new_app.user_middleware.append(injection_middleware)  # the last middleware is the first one to be called
+    new_app = _wrap_asgi_app(app)
+    new_app.user_middleware.append(html_injection_middleware)  # the last middleware is the first one to be called
 
     return new_app
+
+
+auto_refresh_middleware = UniversalMiddleware(patch_for_auto_reloading)
+"""This middleware combines the two middlewares above to enable the full functionality of this package."""

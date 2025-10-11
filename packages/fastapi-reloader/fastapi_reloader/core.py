@@ -13,6 +13,7 @@ requests: dict[int, list[Queue[Literal[0, 1]]]] = defaultdict(list)
 
 
 def send_reload_signal():
+    """Broadcast a reload signal to all connected clients and break their long-polling connections."""
     for subscribers in requests.values():
         for queue in subscribers:
             queue.put_nowait(1)

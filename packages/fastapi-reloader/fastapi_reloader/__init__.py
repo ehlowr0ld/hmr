@@ -1,4 +1,4 @@
 from .core import send_reload_signal
-from .patcher import patch_for_auto_reloading
+from .patcher import auto_refresh_middleware, html_injection_middleware, patch_for_auto_reloading, reloader_route_middleware
 
-__all__ = ["patch_for_auto_reloading", "send_reload_signal"]
+__all__ = ["auto_refresh_middleware", "html_injection_middleware", "patch_for_auto_reloading", "reloader_route_middleware", "send_reload_signal"]
