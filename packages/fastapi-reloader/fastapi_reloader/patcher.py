@@ -31,7 +31,7 @@ def patch_for_auto_reloading(app: ASGIApp):
     async def hmr_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]):
         res = await call_next(request)
 
-        if request.method != "GET" or "html" not in (res.headers.get("content-type", "")):
+        if request.method != "GET" or "html" not in (res.headers.get("content-type", "")) or res.headers.get("content-encoding", "identity") != "identity":
             return res
 
         async def response():
@@ -43,7 +43,7 @@ def patch_for_auto_reloading(app: ASGIApp):
 
             yield b'\n\n <script src="/---fastapi-reloader---/poller.js"></script>'
 
-        headers = {k: v for k, v in res.headers.items() if k.lower() not in {"content-length", "content-encoding", "transfer-encoding"}}
+        headers = {k: v for k, v in res.headers.items() if k.lower() not in {"content-length", "transfer-encoding"}}
 
         return StreamingResponse(response(), res.status_code, headers, res.media_type)
 
