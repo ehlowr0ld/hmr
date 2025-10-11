@@ -1,11 +1,13 @@
 from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
+from copy import copy
 from math import inf
 from typing import TypeGuard
 
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse
+from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
@@ -41,7 +43,7 @@ async def _injection_http_middleware(request: Request, call_next: Callable[[Requ
 injection_middleware = Middleware(BaseHTTPMiddleware, dispatch=_injection_http_middleware)
 
 
-def patch_for_auto_reloading(app: ASGIApp):
+def _reloader_middleware(app: ASGIApp):
     @asynccontextmanager
     async def lifespan(_):
         async with LifespanManager(app, inf, inf):
@@ -51,6 +53,16 @@ def patch_for_auto_reloading(app: ASGIApp):
     new_app.include_router(reload_router)
     new_app.mount("/", app)
 
+    return new_app
+
+
+def patch_for_auto_reloading(app: ASGIApp):
+    if isinstance(app, Starlette):  # both FastAPI and Starlette have user_middleware attribute
+        new_app = copy(app)
+        new_app.user_middleware = [*app.user_middleware, injection_middleware]  # before compression middlewares
+        return _reloader_middleware(new_app)
+
+    new_app = _reloader_middleware(app)
     new_app.user_middleware.append(injection_middleware)  # the last middleware is the first one to be called
 
     return new_app
