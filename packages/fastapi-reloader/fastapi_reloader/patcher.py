@@ -2,6 +2,7 @@ from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
 from copy import copy
 from math import inf
+from pathlib import Path
 from typing import Generic, TypeGuard, TypeVar
 
 from asgi_lifespan import LifespanManager
@@ -20,6 +21,9 @@ def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
     return hasattr(response, "body_iterator")
 
 
+INJECTION = f"\n\n<script>\n{Path(__file__, '../runtime.js').resolve().read_text()}\n</script>".encode()
+
+
 async def _injection_http_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]):
     res = await call_next(request)
 
@@ -33,7 +37,7 @@ async def _injection_http_middleware(request: Request, call_next: Callable[[Requ
         else:
             yield res.body
 
-        yield b'\n\n <script src="/---fastapi-reloader---/poller.js"></script>'
+        yield INJECTION
 
     headers = {k: v for k, v in res.headers.items() if k.lower() not in {"content-length", "transfer-encoding"}}
 

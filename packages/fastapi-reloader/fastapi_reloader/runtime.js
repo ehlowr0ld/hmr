@@ -12,7 +12,7 @@ async function poll() {
 }
 
 async function main() {
-  const response = await fetch("/---fastapi-reloader---/0");
+  const response = await fetch("/---fastapi-reloader---");
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   while (true) {

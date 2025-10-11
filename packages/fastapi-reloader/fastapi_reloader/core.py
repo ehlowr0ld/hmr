@@ -1,7 +1,6 @@
 from asyncio import Queue, ensure_future, sleep
 from collections import defaultdict
 from itertools import count
-from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Response
@@ -22,26 +21,15 @@ def send_reload_signal():
 reload_router = APIRouter(prefix="/---fastapi-reloader---", tags=["hmr"])
 
 
-runtime_js = Path(__file__, "../runtime.js").resolve().read_text()
-
-
-def get_js():
-    return runtime_js.replace("/0", f"/{get_id()}")
-
-
 @reload_router.head("")
 async def heartbeat():
-    return Response(status_code=200)
+    return Response(status_code=202)
 
 
-@reload_router.get("/poller.js")
-async def get_poller_js():
-    return Response(get_js(), media_type="application/javascript")
-
-
-@reload_router.get("/{key:int}")
-async def simple_refresh_trigger(key: int):
+@reload_router.get("")
+async def simple_refresh_trigger():
     async def event_generator():
+        key = get_id()
         queue = Queue[Literal[0, 1]]()
 
         stopped = False
@@ -66,4 +54,4 @@ async def simple_refresh_trigger(key: int):
             heartbeat_future.cancel()
             requests[key].remove(queue)
 
-    return StreamingResponse(event_generator(), media_type="text/plain")
+    return StreamingResponse(event_generator(), 201, media_type="text/plain")
