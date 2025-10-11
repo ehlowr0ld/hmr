@@ -160,7 +160,7 @@ def main(
                     counter = 10
                     while not self.should_exit:
                         await sleep(1 - time() % 1)
-                        self.should_exit = await self.on_tick(counter)
+                        self.should_exit |= await self.on_tick(counter)
                         counter += 10
 
                 await wait((until(lambda: self.should_exit), ensure_future(ticking())), return_when=FIRST_COMPLETED)
@@ -170,6 +170,10 @@ def main(
                 def shutdown(self, sockets=None):
                     _try_refresh()
                     return super().shutdown(sockets)
+
+                def _wait_tasks_to_complete(self):
+                    _try_refresh()
+                    return super()._wait_tasks_to_complete()
 
         return _Server, Config
 
