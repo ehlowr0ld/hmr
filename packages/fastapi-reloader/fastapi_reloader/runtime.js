@@ -30,4 +30,7 @@ async function main() {
   }
 }
 
-main();
+if (!window.__fastapi_reloader_loaded) {
+  window.__fastapi_reloader_loaded = true;
+  main();
+}
