@@ -27,7 +27,7 @@ async def heartbeat():
 
 
 @reload_router.get("")
-async def simple_refresh_trigger():
+async def subscribe():
     async def event_generator():
         key = get_id()
         queue = Queue[Literal[0, 1]]()
