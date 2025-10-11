@@ -115,7 +115,7 @@ def main(
 
         @override
         def on_changes(self, files: set[Path]):
-            if files.intersection((*ReactiveModule.instances, *(path for path, s in fs_signals.items() if s.subscribers))):
+            if files.intersection(ReactiveModule.instances) or files.intersection(path for path, s in fs_signals.items() if s.subscribers):
                 if clear:
                     print("\033c", end="", flush=True)
                 logger.warning("Watchfiles detected changes in %s. Reloading...", ", ".join(map(_display_path, files)))
