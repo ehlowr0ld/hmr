@@ -66,6 +66,8 @@ app = html_injection_middleware(app)
 app.user_middleware.append(html_injection_middleware)
 ```
 
+> It's safe to add `html_injection_middleware` in multiple places, even if their scopes overlap. We have safeguards in place to prevent double injection on both server and client side.
+
 The `auto_refresh_middleware` is a convenient wrapper that applies both `reloader_route_middleware` and `html_injection_middleware`. However, you can add them separately for more control:
 
 - **Fine-grained control**: If a sub-router in your application uses compression, you must add `html_injection_middleware` before the compression middleware on that router.

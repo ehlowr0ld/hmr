@@ -23,12 +23,16 @@ def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
 
 INJECTION = f"\n\n<script>\n{Path(__file__, '../runtime.js').resolve().read_text()}\n</script>".encode()
 
+FLAG = " fastapi-reloader-injected "  # to avoid double injection
+
 
 async def _injection_http_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]):
     res = await call_next(request)
 
-    if request.method != "GET" or "html" not in (res.headers.get("content-type", "")) or res.headers.get("content-encoding", "identity") != "identity":
+    if request.scope.get(FLAG) or request.method != "GET" or "html" not in (res.headers.get("content-type", "")) or res.headers.get("content-encoding", "identity") != "identity":
         return res
+
+    request.scope[FLAG] = True
 
     async def response():
         if is_streaming_response(res):
