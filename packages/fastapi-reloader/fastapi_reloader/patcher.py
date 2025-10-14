@@ -1,8 +1,10 @@
 from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
 from copy import copy
+from inspect import ismethod
 from math import inf
 from pathlib import Path
+from types import MethodType
 from typing import Generic, TypeGuard, TypeVar
 
 from asgi_lifespan import LifespanManager
@@ -87,6 +89,14 @@ def patch_for_auto_reloading(app: ASGIApp):  # this function is preserved for ba
     if isinstance(app, Starlette):  # both FastAPI and Starlette have user_middleware attribute
         new_app = copy(app)
         new_app.user_middleware = [*app.user_middleware, html_injection_middleware]  # before compression middlewares
+
+        # OTEL patches the app's build_middleware_stack method and keep a reference to the original build_middleware_stack.
+        # But both methods are bound to the original app instance, so we need to rebind them to the new app instance.
+        # The following loop generically rebinds all these methods, preventing potential issues caused by similar patches.
+        for i in dir(new_app):
+            if ismethod(method := getattr(new_app, i)) and method.__self__ is app:
+                setattr(new_app, i, MethodType(method.__func__, new_app))
+
         return _wrap_asgi_app(new_app)
 
     new_app = _wrap_asgi_app(app)
