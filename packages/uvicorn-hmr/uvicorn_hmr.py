@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Annotated, override
 
 from typer import Argument, Option, Typer, secho
 
-app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False, pretty_exceptions_show_locals=False)
+app = Typer(help="Hot Module Replacement for Uvicorn", add_completion=False, pretty_exceptions_enable=False, rich_markup_mode="markdown")
 
 
 @app.command(no_args_is_help=True)
