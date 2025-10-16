@@ -181,9 +181,11 @@ def main(
 
     @wraps(original_load := __load.method)
     def patched_load(self: ReactiveModule, *args, **kwargs):
-        original_load(self, *args, **kwargs)
-        file: Path = self._ReactiveModule__file  # type: ignore
-        on_dispose(lambda: logger.info("Reloading module '%s' from %s", self.__name__, _display_path(file)), str(file))
+        try:
+            original_load(self, *args, **kwargs)
+        finally:
+            file: Path = self._ReactiveModule__file  # type: ignore
+            on_dispose(lambda: logger.info("Reloading module '%s' from %s", self.__name__, _display_path(file)), str(file))
 
     __load.method = patched_load
 
