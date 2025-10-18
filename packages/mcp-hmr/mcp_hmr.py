@@ -4,7 +4,7 @@ from importlib.machinery import ModuleSpec
 from importlib.util import find_spec, module_from_spec
 from pathlib import Path
 
-__version__ = "0.0.2"
+__version__ = "0.0.2.1"
 
 
 async def run_with_hmr(target: str, log_level: str | None = None):
@@ -116,15 +116,15 @@ def cli(argv: list[str] = sys.argv[1:]):
     from asyncio import run
     from contextlib import suppress
 
+    if (cwd := str(Path.cwd())) not in sys.path:
+        sys.path.append(cwd)
+
     left = target[: target.rindex(":")]
 
     if (file := Path(left)).is_file():
         sys.path.insert(0, str(file.parent))
     elif find_spec(left) is None:
         parser.exit(1, f"The target '{left}' not found. Please provide a valid module name or a file path.")
-
-    if (cwd := str(Path.cwd())) not in sys.path:
-        sys.path.append(cwd)
 
     with suppress(KeyboardInterrupt):
         run(run_with_hmr(target, args.log_level))
