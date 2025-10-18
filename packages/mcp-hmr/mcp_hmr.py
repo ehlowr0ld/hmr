@@ -1,20 +1,23 @@
 import sys
+from importlib import import_module
+from importlib.machinery import ModuleSpec
+from importlib.util import find_spec, module_from_spec
+from pathlib import Path
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 async def run_with_hmr(target: str, log_level: str | None = None):
-    module, attr = target.split(":")
+    module, attr = target.rsplit(":", 1)
 
     from asyncio import Event, Lock, TaskGroup
     from contextlib import contextmanager
-    from importlib import import_module
 
     import mcp.server
     from fastmcp import FastMCP
     from fastmcp.server.proxy import ProxyClient
     from reactivity import async_effect, derived
-    from reactivity.hmr.core import HMR_CONTEXT, AsyncReloader
+    from reactivity.hmr.core import HMR_CONTEXT, AsyncReloader, _loader
     from reactivity.hmr.hooks import call_post_reload_hooks, call_pre_reload_hooks
 
     base_app = FastMCP(name="proxy", include_fastmcp_meta=False)
@@ -41,9 +44,17 @@ async def run_with_hmr(target: str, log_level: str | None = None):
                 await stop_event.wait()
                 finish_event.set()
 
-    @derived(context=HMR_CONTEXT)
-    def get_app():
-        return getattr(import_module(module), attr)
+    if Path(module).is_file():  # module:attr
+
+        @derived(context=HMR_CONTEXT)
+        def get_app():
+            return getattr(module_from_spec(ModuleSpec("server_module", _loader, origin=module)), attr)
+
+    else:  # path:attr
+
+        @derived(context=HMR_CONTEXT)
+        def get_app():
+            return getattr(import_module(module), attr)
 
     stop_event: Event | None = None
     finish_event: Event = ...  # type: ignore
@@ -87,7 +98,7 @@ def cli(argv: list[str] = sys.argv[1:]):
     from argparse import SUPPRESS, ArgumentParser
 
     parser = ArgumentParser(prog="mcp-hmr", description="Hot Reloading for MCP Servers • Automatically reload on code changes")
-    parser.add_argument("target", help="The import path of the FastMCP instance, e.g. `main:app` means `from main import app`", metavar="module:attr")
+    parser.add_argument("target", help="The import path of the FastMCP instance. Supports module:attr and path:attr")
     parser.add_argument("-l", "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], type=str.upper, default=None)
     parser.add_argument("--version", action="version", version=f"mcp-hmr {__version__}", help=SUPPRESS)
 
@@ -99,12 +110,18 @@ def cli(argv: list[str] = sys.argv[1:]):
 
     target: str = args.target
 
-    if target.count(":") != 1 or target.startswith(":") or target.endswith(":"):
-        parser.exit(1, f"The target argument must be in the format 'module:attr', e.g. 'main:app'. Got: '{target}'")
+    if ":" not in target[1:-1]:
+        parser.exit(1, f"The target argument must be in the format 'module:attr' (e.g. 'main:app') or 'path:attr' (e.g. './path/to/main.py:app'). Got: '{target}'")
 
     from asyncio import run
     from contextlib import suppress
-    from pathlib import Path
+
+    left = target[: target.rindex(":")]
+
+    if (file := Path(left)).is_file():
+        sys.path.insert(0, str(file.parent))
+    elif find_spec(left) is None:
+        parser.exit(1, f"The target '{left}' not found. Please provide a valid module name or a file path.")
 
     if (cwd := str(Path.cwd())) not in sys.path:
         sys.path.append(cwd)
