@@ -6,7 +6,7 @@ __version__ = "0.0.1"
 async def run_with_hmr(target: str, log_level: str | None = None):
     module, attr = target.split(":")
 
-    from asyncio import Event, Lock, create_task
+    from asyncio import Event, Lock, TaskGroup
     from contextlib import contextmanager
     from importlib import import_module
 
@@ -58,7 +58,7 @@ async def run_with_hmr(target: str, log_level: str | None = None):
 
         app = get_app()
 
-        create_task(using(app, stop_event := Event(), finish_event := Event()))  # noqa: RUF006
+        tg.create_task(using(app, stop_event := Event(), finish_event := Event()))
 
     class Reloader(AsyncReloader):
         def __init__(self):
@@ -71,14 +71,15 @@ async def run_with_hmr(target: str, log_level: str | None = None):
                 await main()
             finally:
                 call_post_reload_hooks()
-                self.reloader_task = create_task(self.start_watching())
+                tg.create_task(self.start_watching())
 
         async def __aexit__(self, *_):
             self.stop_watching()
             main.dispose()
-            await self.reloader_task
+            if stop_event:
+                stop_event.set()
 
-    async with Reloader():
+    async with TaskGroup() as tg, Reloader():
         await base_app.run_stdio_async(show_banner=False, log_level=log_level)
 
 
