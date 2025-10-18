@@ -119,12 +119,10 @@ def cli(argv: list[str] = sys.argv[1:]):
     if (cwd := str(Path.cwd())) not in sys.path:
         sys.path.append(cwd)
 
-    left = target[: target.rindex(":")]
-
-    if (file := Path(left)).is_file():
+    if (file := Path(module_or_path := target[: target.rindex(":")])).is_file():
         sys.path.insert(0, str(file.parent))
-    elif find_spec(left) is None:
-        parser.exit(1, f"The target '{left}' not found. Please provide a valid module name or a file path.")
+    elif find_spec(module_or_path) is None:
+        parser.exit(1, f"The target '{module_or_path}' not found. Please provide a valid module name or a file path.")
 
     with suppress(KeyboardInterrupt):
         run(run_with_hmr(target, args.log_level))
