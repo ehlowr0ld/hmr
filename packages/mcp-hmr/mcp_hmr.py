@@ -97,7 +97,9 @@ async def run_with_hmr(target: str, log_level: str | None = None):
 def cli(argv: list[str] = sys.argv[1:]):
     from argparse import SUPPRESS, ArgumentParser
 
-    parser = ArgumentParser("mcp-hmr", description="Hot Reloading for MCP Servers • Automatically reload on code changes", suggest_on_error=True)
+    parser = ArgumentParser("mcp-hmr", description="Hot Reloading for MCP Servers • Automatically reload on code changes")
+    if sys.version_info >= (3, 14):
+        parser.suggest_on_error = True
     parser.add_argument("target", help="The import path of the FastMCP instance. Supports module:attr and path:attr")
     parser.add_argument("-l", "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], type=str.upper, default=None)
     parser.add_argument("--version", action="version", version=f"mcp-hmr {__version__}", help=SUPPRESS)
