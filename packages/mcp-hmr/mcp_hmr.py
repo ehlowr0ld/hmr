@@ -4,14 +4,14 @@ from importlib.machinery import ModuleSpec
 from importlib.util import find_spec, module_from_spec
 from pathlib import Path
 
-__version__ = "0.0.2.1"
+__version__ = "0.0.2.2"
 
 
 async def run_with_hmr(target: str, log_level: str | None = None):
     module, attr = target.rsplit(":", 1)
 
     from asyncio import Event, Lock, TaskGroup
-    from contextlib import contextmanager
+    from contextlib import contextmanager, suppress
 
     import mcp.server
     from fastmcp import FastMCP
@@ -31,9 +31,10 @@ async def run_with_hmr(target: str, log_level: str | None = None):
             for mounted_server in list(base_app._mounted_servers):  # noqa: SLF001
                 if mounted_server.server is proxy:
                     base_app._mounted_servers.remove(mounted_server)  # noqa: SLF001
-                    base_app._tool_manager._mounted_servers.remove(mounted_server)  # noqa: SLF001
-                    base_app._resource_manager._mounted_servers.remove(mounted_server)  # noqa: SLF001
-                    base_app._prompt_manager._mounted_servers.remove(mounted_server)  # noqa: SLF001
+                    with suppress(AttributeError):
+                        base_app._tool_manager._mounted_servers.remove(mounted_server)  # noqa: SLF001
+                        base_app._resource_manager._mounted_servers.remove(mounted_server)  # noqa: SLF001
+                        base_app._prompt_manager._mounted_servers.remove(mounted_server)  # noqa: SLF001
                     break
 
     lock = Lock()
