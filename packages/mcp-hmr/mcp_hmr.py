@@ -4,7 +4,7 @@ from importlib.machinery import ModuleSpec
 from importlib.util import find_spec, module_from_spec
 from pathlib import Path
 
-__version__ = "0.0.2.2"
+__version__ = "0.0.2.3"
 
 
 async def run_with_hmr(target: str, log_level: str | None = None):
@@ -124,8 +124,14 @@ def cli(argv: list[str] = sys.argv[1:]):
 
     if (file := Path(module_or_path := target[: target.rindex(":")])).is_file():
         sys.path.insert(0, str(file.parent))
-    elif find_spec(module_or_path) is None:
-        parser.exit(1, f"The target '{module_or_path}' not found. Please provide a valid module name or a file path.")
+    else:
+        if "." in module_or_path:  # find_spec may cause implicit imports of parent packages
+            from reactivity.hmr.core import patch_meta_path
+
+            patch_meta_path()
+
+        if find_spec(module_or_path) is None:
+            parser.exit(1, f"The target '{module_or_path}' not found. Please provide a valid module name or a file path.")
 
     with suppress(KeyboardInterrupt):
         run(run_with_hmr(target, args.log_level))
