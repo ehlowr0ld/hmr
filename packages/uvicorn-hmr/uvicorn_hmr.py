@@ -130,12 +130,12 @@ def main(
 
     def until(func: Callable[[], bool]):
         future = Future()
+        future.add_done_callback(lambda _: check.dispose())
 
         @HMR_CONTEXT.effect
         def check():
             if func():
                 future.set_result(None)
-                check.dispose()
 
         return future
 
