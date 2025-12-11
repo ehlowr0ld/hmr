@@ -6,6 +6,8 @@ from pathlib import Path
 
 __version__ = "0.0.2.3"
 
+__all__ = "mcp_server", "run_with_hmr"
+
 
 def mcp_server(target: str):
     module, attr = target.rsplit(":", 1)
@@ -102,8 +104,8 @@ def mcp_server(target: str):
 
 
 async def run_with_hmr(target: str, log_level: str | None = None):
-    async with mcp_server(target) as base_app:
-        await base_app.run_stdio_async(show_banner=False, log_level=log_level)
+    async with mcp_server(target) as mcp:
+        await mcp.run_stdio_async(show_banner=False, log_level=log_level)
 
 
 def cli(argv: list[str] = sys.argv[1:]):
