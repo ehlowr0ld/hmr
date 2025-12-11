@@ -7,11 +7,11 @@ from pathlib import Path
 __version__ = "0.0.2.3"
 
 
-async def run_with_hmr(target: str, log_level: str | None = None):
+def mcp_server(target: str):
     module, attr = target.rsplit(":", 1)
 
     from asyncio import Event, Lock, TaskGroup
-    from contextlib import contextmanager, suppress
+    from contextlib import asynccontextmanager, contextmanager, suppress
 
     import mcp.server
     from fastmcp import FastMCP
@@ -59,6 +59,7 @@ async def run_with_hmr(target: str, log_level: str | None = None):
 
     stop_event: Event | None = None
     finish_event: Event = ...  # type: ignore
+    tg: TaskGroup = ...  # type: ignore
 
     @async_effect(context=HMR_CONTEXT, call_immediately=False)
     async def main():
@@ -91,7 +92,17 @@ async def run_with_hmr(target: str, log_level: str | None = None):
             if stop_event:
                 stop_event.set()
 
-    async with TaskGroup() as tg, Reloader():
+    @asynccontextmanager
+    async def _():
+        nonlocal tg
+        async with TaskGroup() as tg, Reloader():
+            yield base_app
+
+    return _()
+
+
+async def run_with_hmr(target: str, log_level: str | None = None):
+    async with mcp_server(target) as base_app:
         await base_app.run_stdio_async(show_banner=False, log_level=log_level)
 
 
