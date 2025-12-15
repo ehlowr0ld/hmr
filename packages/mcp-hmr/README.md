@@ -7,6 +7,10 @@ Provides [Hot Module Reloading](https://pyth-on-line.promplate.dev/hmr) for MCP/
 
 It acts as **a drop-in replacement for `mcp run path:app` or `fastmcp run path:app`.** Both [FastMCP v2](https://github.com/jlowin/fastmcp) and the [official python SDK](https://github.com/modelcontextprotocol/python-sdk) are supported.
 
+> [!TIP]
+>
+> Here's the thing: With this package, you don't need to restart your MCP server on every code change. Just save your files, and the server automatically uses the latest code without dropping client connections.
+
 ## CLI Usage
 
 If your server instance is named `app` in `./path/to/main.py`, you can run:
