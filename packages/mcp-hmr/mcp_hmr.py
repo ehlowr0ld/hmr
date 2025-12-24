@@ -4,7 +4,7 @@ from importlib.machinery import ModuleSpec
 from importlib.util import find_spec, module_from_spec
 from pathlib import Path
 
-__version__ = "0.0.3"
+__version__ = "0.0.3.1"
 
 __all__ = "mcp_server", "run_with_hmr"
 
@@ -33,6 +33,7 @@ def mcp_server(target: str):
             for mounted_server in list(base_app._mounted_servers):  # noqa: SLF001
                 if mounted_server.server is proxy:
                     base_app._mounted_servers.remove(mounted_server)  # noqa: SLF001
+                    # for older FastMCP versions
                     with suppress(AttributeError):
                         base_app._tool_manager._mounted_servers.remove(mounted_server)  # type: ignore  # noqa: SLF001
                         base_app._resource_manager._mounted_servers.remove(mounted_server)  # type: ignore  # noqa: SLF001
@@ -111,7 +112,11 @@ async def run_with_hmr(target: str, log_level: str | None = None, transport="std
             case "http" | "streamable-http":
                 await mcp.run_http_async(log_level=log_level, **kwargs)
             case "sse":
-                await mcp.run_sse_async(log_level=log_level, **kwargs)
+                # for older FastMCP versions
+                if hasattr(mcp, "run_sse_async"):
+                    await mcp.run_sse_async(log_level=log_level, **kwargs)  # type: ignore
+                else:
+                    await mcp.run_http_async(transport="sse", log_level=log_level, **kwargs)
             case _:
                 await mcp.run_async(transport, log_level=log_level, **kwargs)  # type: ignore
 
