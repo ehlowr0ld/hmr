@@ -41,13 +41,13 @@ mcp-hmr --help
 
 The command supports the following options:
 
-| Option               | Description                                                   | Default                           |
-| -------------------- | ------------------------------------------------------------- | --------------------------------- |
-| `--transport` / `-t` | Transport protocol: `stdio`, `sse`, `http`, `streamable-http` | `stdio`                           |
-| `--log-level` / `-l` | Log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`    | -                                 |
-| `--host`             | Host to bind to for HTTP/SSE transports                       | `localhost`                       |
-| `--port`             | Port to bind to for HTTP/SSE transports                       | `8000`                            |
-| `--path`             | Route path for the server                                     | `/mcp` (http) or `/mcp/sse` (sse) |
+| Option               | Description                                                   | Default                       |
+| -------------------- | ------------------------------------------------------------- | ----------------------------- |
+| `--transport` / `-t` | Transport protocol: `stdio`, `sse`, `http`, `streamable-http` | `stdio`                       |
+| `--log-level` / `-l` | Log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`    | -                             |
+| `--host`             | Host to bind to for HTTP/SSE transports                       | `localhost`                   |
+| `--port`             | Port to bind to for HTTP/SSE transports                       | `8000`                        |
+| `--path`             | Route path for the server                                     | `/mcp` (http) or `/sse` (sse) |
 
 ### Examples
 

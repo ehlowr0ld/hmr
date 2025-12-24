@@ -127,7 +127,7 @@ def cli(argv: list[str] = sys.argv[1:]):
     parser.add_argument("-l", "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], type=str.upper, default=None)
     parser.add_argument("--host", default="localhost", help="Host to bind to for http/sse transports (default: localhost)")
     parser.add_argument("--port", type=int, default=None, help="Port to bind to for http/sse transports (default: 8000)")
-    parser.add_argument("--path", default=None, help="Route path for the server (default: /mcp for http, /mcp/sse for sse)")
+    parser.add_argument("--path", default=None, help="Route path for the server (default: /mcp for http, /sse for sse)")
     parser.add_argument("--version", action="version", version=f"mcp-hmr {__version__}", help=SUPPRESS)
 
     if not argv:
