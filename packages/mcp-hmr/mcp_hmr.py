@@ -128,6 +128,8 @@ def cli(argv: list[str] = sys.argv[1:]):
     parser.add_argument("--host", default="localhost", help="Host to bind to for http/sse transports (default: localhost)")
     parser.add_argument("--port", type=int, default=None, help="Port to bind to for http/sse transports (default: 8000)")
     parser.add_argument("--path", default=None, help="Route path for the server (default: /mcp for http, /sse for sse)")
+    parser.add_argument("--stateless", action="store_true", help="Shortcut for `stateless_http=True` and `json_response=True`")
+    parser.add_argument("--no-cors", action="store_true", help="Disable CORS (the default is to enable CORS for all origins)")
     parser.add_argument("--version", action="version", version=f"mcp-hmr {__version__}", help=SUPPRESS)
 
     if not argv:
@@ -140,6 +142,22 @@ def cli(argv: list[str] = sys.argv[1:]):
 
     if ":" not in target[1:-1]:
         parser.exit(1, f"The target argument must be in the format 'module:attr' (e.g. 'main:app') or 'path:attr' (e.g. './path/to/main.py:app'). Got: '{target}'")
+
+    kwargs = args.__dict__
+
+    if kwargs.pop("stateless"):
+        if args.transport != "http":
+            parser.exit(1, "--stateless can only be used with the http transport.")
+        args.json_response = True
+        args.stateless_http = True
+
+    if kwargs.pop("no_cors"):
+        if args.transport != "http":
+            parser.exit(1, "--no-cors can only be used with the http transport.")
+    elif args.transport == "http":
+        from starlette.middleware import Middleware, cors
+
+        args.middleware = [Middleware(cors.CORSMiddleware, allow_origins="*", allow_methods="*", allow_headers="*", expose_headers="*")]
 
     from asyncio import run
     from contextlib import suppress
@@ -159,7 +177,7 @@ def cli(argv: list[str] = sys.argv[1:]):
             parser.exit(1, f"The target '{module_or_path}' not found. Please provide a valid module name or a file path.")
 
     with suppress(KeyboardInterrupt):
-        run(run_with_hmr(**args.__dict__))
+        run(run_with_hmr(**kwargs))
 
 
 if __name__ == "__main__":

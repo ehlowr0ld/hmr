@@ -48,6 +48,11 @@ The command supports the following options:
 | `--host`             | Host to bind to for HTTP/SSE transports                       | `localhost`                   |
 | `--port`             | Port to bind to for HTTP/SSE transports                       | `8000`                        |
 | `--path`             | Route path for the server                                     | `/mcp` (http) or `/sse` (sse) |
+| `--stateless`        | Sets `stateless_http=True` and `json_response=True`           | `False`                       |
+| `--no-cors`          | Disable CORS for HTTP transport                               | `False`                       |
+
+> [!NOTE]
+> HTTP transport uses a permissive CORS policy by default for development convenience.
 
 ### Examples
 
