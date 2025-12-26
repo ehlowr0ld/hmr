@@ -75,6 +75,55 @@ uvicorn-hmr main:app
 
 Everything will work as-expected, but with **hot** module reloading.
 
+## Programmatic Usage
+
+If your application already constructs its own `uvicorn.Config` and `uvicorn.Server`, you can embed `uvicorn-hmr` and keep those pieces under your control by providing an app loader and a server factory.
+
+```python
+from pathlib import Path
+
+import uvicorn
+
+from uvicorn_hmr import UvicornHMRConfig, UvicornHMRHooks, run_with_hmr
+
+
+def load_app():
+    # Important: avoid importing your target module before `uvicorn-hmr` starts,
+    # otherwise it will be imported as a normal module and won't hot-reload.
+    from myapp.entrypoint import build_asgi_app
+
+    return build_asgi_app()
+
+
+def make_server(app):
+    config = uvicorn.Config(app, host="localhost", port=8000, log_level="info")
+    return uvicorn.Server(config)
+
+
+run_with_hmr(
+    entry=Path(__file__),
+    load_app=load_app,
+    make_server=make_server,
+    hmr=UvicornHMRConfig(
+        reload_include=[str(Path.cwd())],
+        reload_exclude=[".venv"],
+        extra_watch_files=[Path(".env")],
+    ),
+    hooks=UvicornHMRHooks(
+        # Use these hooks to clean up background threads/tasks and other resources
+        # that would otherwise accumulate across reloads.
+        before_shutdown=None,
+        after_reload=None,
+    ),
+)
+```
+
+Notes:
+
+- If you already have an event loop, use `run_with_hmr_async(...)` instead of `run_with_hmr(...)`.
+- The `make_server(app)` callable must return a `uvicorn.Server`-like instance with an async `serve()` method and a `should_exit` flag.
+- For slug-based programmatic usage, you can also call `run_slug_with_hmr("module:app", ...)`.
+
 ## CLI Arguments
 
 I haven't copied all the configurable options from `uvicorn`. But contributions are welcome!
