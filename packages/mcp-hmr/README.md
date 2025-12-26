@@ -45,6 +45,7 @@ The command supports the following options:
 | -------------------- | ------------------------------------------------------------- | ----------------------------- |
 | `--transport` / `-t` | Transport protocol: `stdio`, `sse`, `http`, `streamable-http` | `stdio`                       |
 | `--log-level` / `-l` | Log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`    | -                             |
+| `--environment`      | Path to a `.env` file to load and watch (changes trigger reload) | -                           |
 | `--host`             | Host to bind to for HTTP/SSE transports                       | `localhost`                   |
 | `--port`             | Port to bind to for HTTP/SSE transports                       | `8000`                        |
 | `--path`             | Route path for the server                                     | `/mcp` (http) or `/sse` (sse) |
@@ -68,6 +69,12 @@ Start with debug logging:
 mcp-hmr main:app -l DEBUG
 ```
 
+Start with an environment file (reload on `.env` changes):
+
+```sh
+mcp-hmr main:app --environment ./.env
+```
+
 Use streamable-http transport:
 
 ```sh
@@ -85,7 +92,7 @@ from uvicorn import Config, Server
 
 app: FastAPI = ...
 
-async with mcp_server("path/to/mcp-server.py:mcp") as mcp:
+async with mcp_server("path/to/mcp-server.py:mcp", environment="./.env") as mcp:
     # mcp.add_middleware(...)
     app.mount("/", mcp.http_app("/mcp"))  # mount the auto-reloading MCP server to your FastAPI app
     await Server(Config(app)).serve()
