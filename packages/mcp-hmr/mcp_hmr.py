@@ -6,6 +6,7 @@ from importlib import import_module
 from importlib.machinery import ModuleSpec
 from importlib.util import find_spec, module_from_spec
 from pathlib import Path
+from typing import Any
 
 __version__ = "0.0.3.1"
 
@@ -142,7 +143,7 @@ class _EnvironmentManager:
         return True
 
 
-def mcp_server(target: str, *, environment: str | None = None):
+def mcp_server(target: str, *, environment: str | None = None, watch_debounce_ms: int | None = None, watch_step_ms: int | None = None):
     module, attr = target.rsplit(":", 1)
 
     from asyncio import Event, Lock, TaskGroup
@@ -247,7 +248,13 @@ def mcp_server(target: str, *, environment: str | None = None):
                 if not any(env_file.is_relative_to(r) for r in roots if r.is_dir()):
                     watch_paths.append(str(env_file))
 
-            async for events in awatch(*watch_paths, stop_event=self._stop_event):
+            awatch_kwargs: dict[str, Any] = {"stop_event": self._stop_event}
+            if watch_debounce_ms is not None:
+                awatch_kwargs["debounce"] = watch_debounce_ms
+            if watch_step_ms is not None:
+                awatch_kwargs["step"] = watch_step_ms
+
+            async for events in awatch(*watch_paths, **awatch_kwargs):
                 self.on_events(events)
 
             del self._stop_event
@@ -305,8 +312,16 @@ def mcp_server(target: str, *, environment: str | None = None):
     return _()
 
 
-async def run_with_hmr(target: str, log_level: str | None = None, transport="stdio", environment: str | None = None, **kwargs):
-    async with mcp_server(target, environment=environment) as mcp:
+async def run_with_hmr(
+    target: str,
+    log_level: str | None = None,
+    transport="stdio",
+    environment: str | None = None,
+    watch_debounce_ms: int | None = None,
+    watch_step_ms: int | None = None,
+    **kwargs,
+):
+    async with mcp_server(target, environment=environment, watch_debounce_ms=watch_debounce_ms, watch_step_ms=watch_step_ms) as mcp:
         match transport:
             case "stdio":
                 await mcp.run_stdio_async(show_banner=False, log_level=log_level)
@@ -332,6 +347,8 @@ def cli(argv: list[str] = sys.argv[1:]):
     parser.add_argument("-t", "--transport", choices=["stdio", "http", "sse", "streamable-http"], default="stdio", help="Transport protocol to use (default: stdio)")
     parser.add_argument("-l", "--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], type=str.upper, default=None)
     parser.add_argument("--environment", default=None, help="Path to a .env file to load and watch; changes trigger a reload of the target server module.")
+    parser.add_argument("--watch-debounce-ms", type=int, default=None, help="Override watchfiles debounce in milliseconds (batching window).")
+    parser.add_argument("--watch-step-ms", type=int, default=None, help="Override watchfiles step in milliseconds (polling granularity).")
     parser.add_argument("--host", default="localhost", help="Host to bind to for http/sse transports (default: localhost)")
     parser.add_argument("--port", type=int, default=None, help="Port to bind to for http/sse transports (default: 8000)")
     parser.add_argument("--path", default=None, help="Route path for the server (default: /mcp for http, /sse for sse)")
@@ -355,6 +372,11 @@ def cli(argv: list[str] = sys.argv[1:]):
         if not env_file.is_file():
             parser.exit(1, f"The environment file '{env_file}' not found. Please provide a valid file path.")
         args.environment = str(env_file.resolve())
+
+    if args.watch_debounce_ms is not None and args.watch_debounce_ms < 0:
+        parser.exit(1, "--watch-debounce-ms must be >= 0")
+    if args.watch_step_ms is not None and args.watch_step_ms < 1:
+        parser.exit(1, "--watch-step-ms must be >= 1")
 
     kwargs = args.__dict__
 

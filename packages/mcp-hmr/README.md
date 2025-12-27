@@ -46,6 +46,8 @@ The command supports the following options:
 | `--transport` / `-t` | Transport protocol: `stdio`, `sse`, `http`, `streamable-http` | `stdio`                       |
 | `--log-level` / `-l` | Log level: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`    | -                             |
 | `--environment`      | Path to a `.env` file to load and watch (changes trigger reload) | -                           |
+| `--watch-debounce-ms` | Override watchfiles debounce in milliseconds (batching window) | watchfiles default            |
+| `--watch-step-ms`    | Override watchfiles step in milliseconds (polling granularity) | watchfiles default            |
 | `--host`             | Host to bind to for HTTP/SSE transports                       | `localhost`                   |
 | `--port`             | Port to bind to for HTTP/SSE transports                       | `8000`                        |
 | `--path`             | Route path for the server                                     | `/mcp` (http) or `/sse` (sse) |
