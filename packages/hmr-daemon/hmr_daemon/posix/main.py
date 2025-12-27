@@ -14,13 +14,16 @@ from watchfiles import Change
 def get_code(_: ReactiveModuleLoader, fullname: str):
     from ast import parse
     from importlib.util import find_spec
+    from tokenize import open as tokenize_open
 
     if (spec := find_spec(fullname)) is not None and (file := spec.origin) is not None:
         path = Path(file)
-        return compile(parse(path.read_text(), str(path)), str(path), "exec", dont_inherit=True)
+        with tokenize_open(str(path)) as f:
+            source = f.read()
+        return compile(parse(source, str(path)), str(path), "exec", dont_inherit=True)
 
 
-ReactiveModuleLoader.get_code = get_code  # type: ignore
+ReactiveModuleLoader.get_code = get_code  # pyright: ignore[reportAttributeAccessIssue]
 
 # Shared shutdown event (pipe reader thread stops when set)
 shutdown_event = Event()
@@ -59,8 +62,6 @@ class PipeReloader(SyncReloader):
 
     def iterate_pipe_events(self) -> Iterable[set[tuple[Change, str]]]:
         from json import loads
-
-        from watchfiles import Change
 
         while not shutdown_event.is_set():
             # Check if worker process is still alive
