@@ -1,0 +1,17 @@
+[project]
+name = "hmr-reloader"
+description = "Shared browser reload signaling and WSGI helpers for HMR"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/promplate/hmr"
+Documentation = "https://hmr.promplate.dev"
+Repository = "https://github.com/promplate/hmr/tree/HEAD/packages/hmr-reloader"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+

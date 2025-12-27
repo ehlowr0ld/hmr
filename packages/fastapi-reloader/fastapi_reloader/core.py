@@ -1,24 +1,12 @@
-from asyncio import Queue, ensure_future, sleep
-from collections import defaultdict
-from itertools import count
-from typing import Literal
+from asyncio import to_thread
+from queue import Empty
 
 from fastapi import APIRouter, Response
 from fastapi.responses import StreamingResponse
-
-get_id = count().__next__
-
-requests: dict[int, list[Queue[Literal[0, 1]]]] = defaultdict(list)
-
-
-def send_reload_signal():
-    """Broadcast a reload signal to all connected clients and break their long-polling connections."""
-    for subscribers in requests.values():
-        for queue in subscribers:
-            queue.put_nowait(1)
-
+from hmr_reloader import send_reload_signal, subscription
 
 reload_router = APIRouter(prefix="/---fastapi-reloader---", tags=["hmr"])
+__all__ = ["reload_router", "send_reload_signal"]
 
 
 @reload_router.head("")
@@ -29,29 +17,16 @@ async def heartbeat():
 @reload_router.get("")
 async def subscribe():
     async def event_generator():
-        key = get_id()
-        queue = Queue[Literal[0, 1]]()
-
-        stopped = False
-
-        async def heartbeat():
-            while not stopped:
-                queue.put_nowait(0)
-                await sleep(1)
-
-        requests[key].append(queue)
-
-        heartbeat_future = ensure_future(heartbeat())
-
-        try:
+        with subscription() as q:
             yield "0\n"
             while True:
-                value = await queue.get()
+                try:
+                    value = await to_thread(q.get, timeout=1)
+                except Empty:
+                    yield "0\n"
+                    continue
                 yield f"{value}\n"
                 if value == 1:
                     break
-        finally:
-            heartbeat_future.cancel()
-            requests[key].remove(queue)
 
     return StreamingResponse(event_generator(), 201, media_type="text/plain")

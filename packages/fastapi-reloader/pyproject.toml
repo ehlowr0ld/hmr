@@ -5,7 +5,11 @@ readme = "README.md"
 dependencies = [
     "asgi-lifespan~=2.0",
     "fastapi~=0.115",
+    "hmr-reloader>=0.1.0,<1",
 ]
+
+[tool.uv.sources]
+hmr-reloader = { workspace = true }
 
 [project.urls]
 Homepage = "https://github.com/promplate/hmr"

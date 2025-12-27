@@ -37,6 +37,7 @@ It's important to understand the roles of the different packages:
 
 - `uvicorn-hmr` Provides server-side hot module reloading (as a drop-in replacement for `uvicorn --reload`).
 - `fastapi-reloader` Triggers a [browser page refresh](https://developer.mozilla.org/docs/Web/API/Location/reload "window.reload") when the server restarts.
+- `wsgi-hmr` (optional) Provides a similar HMR runner for WSGI development servers (Werkzeug), using the same browser reload mechanism.
 
 If you configure `fastapi-reloader` manually and run your ASGI app with a standard reloader like `uvicorn --reload`, the behavior will be similar to `uvicorn-hmr --refresh` but with "cold" (process-restarting) server reloads instead of "hot" (in-process) reloads provided by [`hmr`](https://pyth-on-line.promplate.dev/hmr).
 

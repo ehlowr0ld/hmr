@@ -140,5 +140,8 @@ The following options are supported but do not have any alternative in `uvicorn`
 
 - `--refresh`: Enables auto-refreshing of HTML pages in the browser whenever the server restarts. Useful for demo purposes and visual debugging. This is **totally different** from `uvicorn`'s built-in `--reload` option, which is always enabled and can't be disabled in `uvicorn-hmr` because hot-reloading is the core feature of this package.
 - `--clear`: Wipes the terminal before each reload. Just like `vite` does by default.
+- `--asset-include` / `--asset-exclude`: When used with `--refresh`, changes matching these specs will refresh the browser without restarting the server. Entries can be directory roots (prefix match), files, or globs (matched relative to the current working directory; absolute patterns are also accepted). Excludes win, and `*.py` is always treated as code (never as an asset refresh trigger).
+- `--watch-debounce-ms` / `--watch-step-ms`: Override watchfiles batching behavior (defaults come from watchfiles). Useful when restarts are slow and you want to coalesce bursts of edits into fewer reload cycles.
+- `--restart-cooldown-ms`: Rate-limit restarts by enforcing a minimum interval between server starts (changes are still applied; restarts are queued until the cooldown expires).
 
 The two features above are opinionated and are disabled by default. They are just my personal practices. If you find them useful or want to suggest some other features, feel free to open an issue.

@@ -3,13 +3,13 @@ from contextlib import asynccontextmanager
 from copy import copy
 from inspect import ismethod
 from math import inf
-from pathlib import Path
 from types import MethodType
 from typing import Generic, TypeGuard, TypeVar
 
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse
+from hmr_reloader import INJECTION as RELOADER_INJECTION
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -23,7 +23,7 @@ def is_streaming_response(response: Response) -> TypeGuard[StreamingResponse]:
     return hasattr(response, "body_iterator")
 
 
-INJECTION = f"\n\n<script>\n{Path(__file__, '../runtime.js').resolve().read_text()}\n</script>".encode()
+INJECTION = RELOADER_INJECTION
 
 FLAG = " fastapi-reloader-injected "  # to avoid double injection
 

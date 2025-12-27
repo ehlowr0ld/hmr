@@ -1,0 +1,19 @@
+[project]
+name = "hmr-runner"
+description = "Shared HMR runner used by uvicorn-hmr and wsgi-hmr"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "hmr~=0.7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/promplate/hmr"
+Documentation = "https://hmr.promplate.dev"
+Repository = "https://github.com/promplate/hmr/tree/HEAD/packages/hmr-runner"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+

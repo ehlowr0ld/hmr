@@ -1,0 +1,29 @@
+[project]
+name = "wsgi-hmr"
+description = "Hot Module Reloading for WSGI development servers (Werkzeug)"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "hmr-reloader>=0.1.0,<1",
+    "hmr-runner>=0.1.0,<1",
+    "typer-slim>=0.15.4,<1",
+    "werkzeug>=3.0.0,<4",
+]
+
+[project.scripts]
+wsgi-hmr = "wsgi_hmr:app"
+
+[project.urls]
+Homepage = "https://github.com/promplate/hmr"
+Documentation = "https://hmr.promplate.dev"
+Repository = "https://github.com/promplate/hmr/tree/HEAD/packages/wsgi-hmr"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.uv.sources]
+hmr-reloader = { workspace = true }
+hmr-runner = { workspace = true }
+
